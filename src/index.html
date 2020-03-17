@@ -2,9 +2,9 @@
 <html>
 
 <head>
-    <meta charset="UTF-8"/>
+    <meta charset="UTF-8" />
     <title>Carmera Mk_I</title>
-    <script src="scripts/camera_handler.js"></script>
+    <script src="scripts/camera_client.js"></script>
     <link rel="stylesheet" href="css/base_styles.css" />
 </head>
 
@@ -12,7 +12,13 @@
     <div>
         <video id="localVideo" autoplay playsinline controls="false" />
     </div>
-    <div>
+    <div class="box">
+        <span>SDP Semantics:</span>
+        <select id="sdpSemantics">
+            <option selected value="">Default</option>
+            <option value="unified-plan">Unified Plan</option>
+            <option value="plan-b">Plan B</option>
+        </select>
         <button onclick="start()">start camera</button>
         <button onclick="stop()">stop camera</button>
     </div>
