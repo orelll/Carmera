@@ -37,23 +37,73 @@ namespace Carmera.Host
         private async void HandleClient(TcpClient client)
         {
             _logger.Log($"Client {client.Client.RemoteEndPoint.ToString()} connected");
+            var handShaken = false;
 
             //TODO: how to break this?
             using (var stream = client.GetStream())
+            {
                 while (true)
                 {
                     while (!stream.DataAvailable) ;
                     while (client.Available > 3)
                     {
-                        var bytes = new byte[client.Available];
-                        await stream.ReadAsync(bytes, 0, client.Available);
+                        if (!handShaken)
+                        {
+                            await DoHandshake(client, stream);
+                            handShaken = true;
+                        }
+                        else{
+                            var message = await GetClientMessage(client, stream);
+                            _logger.Log($"New client message, yay! {Environment.NewLine}{message}");
 
-                        var message = Encoding.UTF8.GetString(bytes);
-                        _logger.Log($"Received message '{message}'");
+                            var response = Encoding.UTF8.GetBytes("Hello there!");
+                            stream.Write(response, 0, response.Length);
+                        }
                     }
                 }
+            }
+        }
 
-            _logger.Log("Client is gone");
+        private async Task<string> GetClientMessage(TcpClient client, NetworkStream stream)
+        {
+            var bytes = new byte[client.Available];
+            await stream.ReadAsync(bytes, 0, client.Available);
+            var x = String.Join(' ', bytes);
+            var message = Encoding.ASCII.GetString(bytes);
+            _logger.Log($"Received message '{message}'");
+            return message;
+        }
+
+        private async Task DoHandshake(TcpClient client, NetworkStream stream)
+        {
+            _logger.Log($"Handshaking {client}...");
+            var message = await GetClientMessage(client, stream);
+
+            var response = PrepareResponse(message);
+            stream.Write(response, 0, response.Length);
+            _logger.Log("Handskake done!");
+        }
+
+        private byte[] PrepareResponse(string data)
+        {
+            const string eol = "\r\n"; // HTTP/1.1 defines the sequence CR LF as the end-of-line marker
+
+            var messageToSend = "HTTP/1.1 101 Switching Protocols" + eol
+                + "Connection: Upgrade" + eol
+                + "Upgrade: websocket" + eol
+                + "Sec-WebSocket-Accept: " + Convert.ToBase64String(
+                    System.Security.Cryptography.SHA1.Create().ComputeHash(
+                        Encoding.UTF8.GetBytes(
+                            new System.Text.RegularExpressions.Regex("Sec-WebSocket-Key: (.*)").Match(data).Groups[1].Value.Trim() + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+                        )
+                    )
+                ) + eol
+                //+ "Sec-WebSocket-Protocol: echo-protocol" + eol
+                + eol;
+
+            var response = Encoding.UTF8.GetBytes(messageToSend);
+
+            return response;
         }
     }
 }

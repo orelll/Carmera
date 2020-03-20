@@ -25,5 +25,16 @@ async function makeCall() {
 
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
-    signalingChannel.send({'offer' : offer});
+    signalingChannel.send({
+        'offer': offer
+    });
+}
+
+function test() {
+    //This will open the connection*
+    ws = new WebSocket("ws://127.0.0.1:8080", 'echo-protocol');
+    ws.onmessage = function(e){ console.log(e.data); };
+    ws.onopen = () => ws.send('hello');
+    
+    // ws.close();
 }
