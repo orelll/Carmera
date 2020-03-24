@@ -31,10 +31,11 @@ async function makeCall() {
 }
 
 function test() {
-    //This will open the connection*
-    ws = new WebSocket("ws://127.0.0.1:8080", 'echo-protocol');
-    ws.onmessage = function(e){ console.log(e.data); };
-    ws.onopen = () => ws.send('hello');
+    ws = new WebSocket("ws://localhost:5000/ws", 'echo-protocol');
+    ws.onmessage = function (e) {
+        console.log(`Response: ${e.data}`);
+        ws.close();
+    };
+    ws.onopen = () => ws.send('carmera');
     
-    // ws.close();
 }
