@@ -3,7 +3,10 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Carmera.WebHost.Services.Cache;
+using Carmera.WebHost.Services.SocketsHandling;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +28,10 @@ namespace Carmera.WebHost
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            
+            
+            services.AddTransient<IRepository<ClientInfo>, CacheRepository<ClientInfo>>();
+            services.AddTransient<IHandleWebSocket, WebSocketHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,7 +46,11 @@ namespace Carmera.WebHost
             //app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseExceptionHandler(app => 
+            {
+              
+                Console.WriteLine("zesra³o siê xD");
+            });
             app.UseAuthorization();
 
             var webSocketOptions = new WebSocketOptions()
@@ -48,7 +59,8 @@ namespace Carmera.WebHost
                 ReceiveBufferSize = 4 * 1024
             };
             app.UseWebSockets();
-            app.Use(async (context, next) => await CatchWebSocket(context, next));
+            var wsHandler  = app.ApplicationServices.GetService<IHandleWebSocket>();
+            app.Use(async (context, next) => await wsHandler.CatchWebSocket(context, next));
 
             app.UseEndpoints(endpoints =>
             {
@@ -57,42 +69,5 @@ namespace Carmera.WebHost
 
         }
 
-        private async Task CatchWebSocket(HttpContext context, Func<Task> next)
-        {
-            if (context.Request.Path == "/ws")
-            {
-                if (context.WebSockets.IsWebSocketRequest)
-                {
-                    WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                    
-                    await Echo(context, webSocket);
-                }
-                else
-                {
-                    context.Response.StatusCode = 400;
-                }
-            }
-            else
-            {
-                await next();
-            }
-        }
-
-        private async Task Echo(HttpContext context, WebSocket webSocket)
-        {
-            var buffer = new byte[1024 * 4];
-            WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-            while (!result.CloseStatus.HasValue)
-            {
-                await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, result.Count), result.MessageType, result.EndOfMessage, CancellationToken.None);
-
-                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-            }
-            await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
-
-            var resp = Encoding.UTF8.GetString(buffer);
-            int i = resp.IndexOf('\0');
-            if (i >= 0) resp = resp.Substring(0, i);
-        }
     }
 }

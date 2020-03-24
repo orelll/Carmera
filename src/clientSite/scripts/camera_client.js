@@ -30,12 +30,12 @@ async function makeCall() {
     });
 }
 
-function test() {
+function sayHello() {
     ws = new WebSocket("ws://localhost:5000/ws", 'echo-protocol');
     ws.onmessage = function (e) {
-        console.log(`Response: ${e.data}`);
+        console.log(`Server response: ${e.data}`);
         ws.close();
     };
-    ws.onopen = () => ws.send('carmera');
     
+    ws.send("carmera");
 }
