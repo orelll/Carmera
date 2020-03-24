@@ -1,17 +1,11 @@
-using System;
-using System.Net.WebSockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Carmera.WebHost.Services.Cache;
+using Carmera.Application.Services.Cache;
 using Carmera.WebHost.Services.SocketsHandling;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 
 namespace Carmera.WebHost
 {
@@ -28,8 +22,7 @@ namespace Carmera.WebHost
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            
-            
+
             services.AddTransient<IRepository<ClientInfo>, CacheRepository<ClientInfo>>();
             services.AddTransient<IHandleWebSocket, WebSocketHandler>();
         }
@@ -46,9 +39,8 @@ namespace Carmera.WebHost
             //app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseExceptionHandler(app => 
+            app.UseExceptionHandler(app =>
             {
-              
                 Console.WriteLine("zesra³o siê xD");
             });
             app.UseAuthorization();
@@ -59,15 +51,13 @@ namespace Carmera.WebHost
                 ReceiveBufferSize = 4 * 1024
             };
             app.UseWebSockets();
-            var wsHandler  = app.ApplicationServices.GetService<IHandleWebSocket>();
+            var wsHandler = app.ApplicationServices.GetService<IHandleWebSocket>();
             app.Use(async (context, next) => await wsHandler.CatchWebSocket(context, next));
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-
         }
-
     }
 }

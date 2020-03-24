@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Carmera.WebHost.Services.Cache
+namespace Carmera.Application.Services.Cache
 {
     public interface IRepository<T>
     {

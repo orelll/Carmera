@@ -1,4 +1,4 @@
-﻿namespace Carmera.WebHost.Services.Cache
+﻿namespace Carmera.Application.Services.Cache
 {
     public class StringCacheKey : CacheKey
     {

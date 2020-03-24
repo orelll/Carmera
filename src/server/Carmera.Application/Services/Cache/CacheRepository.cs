@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Carmera.WebHost.Services.Cache
+namespace Carmera.Application.Services.Cache
 {
     public class CacheRepository<T> : IRepository<T>
     {
