@@ -15,13 +15,13 @@ namespace Carmera.WebHost.Services.SocketsHandling
         private byte[] _okMessage = Encoding.UTF8.GetBytes("OK");
         private IDTOFactory _dtoFactory;
         private IRequestFactory _requestFactory;
-        private IRequestHandlerDispatcher _requestsDispatcher;
+        private IRequestHandlingService _requestHandlingService;
 
-        public WebSocketHandler(IDTOFactory dtoFactory, IRequestFactory requestFactory, IRequestHandlerDispatcher requestsDispatcher)
+        public WebSocketHandler(IDTOFactory dtoFactory, IRequestFactory requestFactory, IRequestHandlingService requestHandlingService)
         {
             _dtoFactory = dtoFactory ?? throw new ArgumentNullException(nameof(dtoFactory));
             _requestFactory = requestFactory ?? throw new ArgumentNullException(nameof(requestFactory));
-            _requestsDispatcher = requestsDispatcher ?? throw new ArgumentNullException(nameof(requestsDispatcher));
+            _requestHandlingService = requestHandlingService ?? throw new ArgumentNullException(nameof(requestHandlingService));
         }
 
         public async Task CatchWebSocket(HttpContext context, Func<Task> next)
@@ -63,9 +63,9 @@ namespace Carmera.WebHost.Services.SocketsHandling
 
             if (requestKind > RequestsTypes.RequestType.Unset)
             {
-                var dto = _dtoFactory.ObtainDTO(message);
+                var dto = _dtoFactory.ObtainDTO(requestKind, message);
                 var request = _requestFactory.CreateRequest(dto);
-                _requestsDispatcher.Dispatch(request);
+                var response = _requestHandlingService.HandleRequest(request);
             }
             else
             {

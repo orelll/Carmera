@@ -1,7 +1,9 @@
-﻿namespace Carmera.Application.Services.RequestHandling
+﻿using Carmera.Common.DTO.Response;
+
+namespace Carmera.Application.Services.RequestHandling
 {
     public interface IRequestHandlerDispatcher
     {
-        TOut Dispatch<TOut>(IGenericRequest<TOut> request);
+        ResponseDTOBase Dispatch(IRequest request);
     }
 }

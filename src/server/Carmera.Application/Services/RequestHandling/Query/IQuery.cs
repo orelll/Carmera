@@ -1,6 +1,6 @@
 ﻿namespace Carmera.Application.Services.RequestHandling.Query
 {
-    public interface IQuery<TOut> : IGenericRequest<TOut>
+    public interface IQuery<TOut> : IRequest
     {
     }
 }

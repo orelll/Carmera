@@ -1,10 +1,10 @@
-﻿using Carmera.Common;
+﻿using Carmera.Application.Services.RequestHandling;
 using Carmera.Common.DTO.Request;
 
 namespace Carmera.WebHost.Services.DTOProduction
 {
     public interface IDTOFactory
     {
-        RequestDTOBase ObtainDTO(string message);
+        RequestDTOBase ObtainDTO(RequestsTypes.RequestType requestType, string message);
     }
 }

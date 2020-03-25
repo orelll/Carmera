@@ -2,6 +2,6 @@
 {
     public interface IRequestHandlingService
     {
-        TOut HandleRequest<TOut>(IGenericRequest<TOut> request);
+        IResponse HandleRequest(IRequest request);
     }
 }
