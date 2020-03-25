@@ -1,4 +1,4 @@
-﻿namespace Carmera.Common
+﻿namespace Carmera.Common.DTO.Request
 {
     public class RequestDTOBase
     {

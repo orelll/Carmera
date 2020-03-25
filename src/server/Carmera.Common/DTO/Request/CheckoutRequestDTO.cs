@@ -1,4 +1,4 @@
-﻿namespace Carmera.Common.DTO
+﻿namespace Carmera.Common.DTO.Request
 {
     public class CheckoutRequestDTO : RequestDTOBase
     {

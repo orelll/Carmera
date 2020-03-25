@@ -3,19 +3,26 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Carmera.Application.Services.Cache;
-using Carmera.Common;
+using Carmera.Application.Services.RequestHandling;
+using Carmera.Application.Services.RequestHandling.Factory;
+using Carmera.WebHost.Services.DTOProduction;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 
 namespace Carmera.WebHost.Services.SocketsHandling
 {
     public class WebSocketHandler : IHandleWebSocket
     {
-        private readonly IRepository<ClientInfo> _cacheHandler;
         private byte[] _okMessage = Encoding.UTF8.GetBytes("OK");
+        private IDTOFactory _dtoFactory;
+        private IRequestFactory _requestFactory;
+        private IRequestHandlerDispatcher _requestsDispatcher;
 
-        public WebSocketHandler(IRepository<ClientInfo> cacheHandler) => _cacheHandler = cacheHandler ?? throw new ArgumentNullException(nameof(cacheHandler));
+        public WebSocketHandler(IDTOFactory dtoFactory, IRequestFactory requestFactory, IRequestHandlerDispatcher requestsDispatcher)
+        {
+            _dtoFactory = dtoFactory ?? throw new ArgumentNullException(nameof(dtoFactory));
+            _requestFactory = requestFactory ?? throw new ArgumentNullException(nameof(requestFactory));
+            _requestsDispatcher = requestsDispatcher ?? throw new ArgumentNullException(nameof(requestsDispatcher));
+        }
 
         public async Task CatchWebSocket(HttpContext context, Func<Task> next)
         {
@@ -52,11 +59,13 @@ namespace Carmera.WebHost.Services.SocketsHandling
 
             var message = PrepareIncomingMessage(buffer);
 
-            RequestDTOBase request = null;
-            var success = TryCastToBaseRequestDTO(message, out request);
+            var requestKind = GetKind(message);
 
-            if (success)
+            if (requestKind > RequestsTypes.RequestType.Unset)
             {
+                var dto = _dtoFactory.ObtainDTO(message);
+                var request = _requestFactory.CreateRequest(dto);
+                _requestsDispatcher.Dispatch(request);
             }
             else
             {
@@ -73,19 +82,19 @@ namespace Carmera.WebHost.Services.SocketsHandling
             return resp;
         }
 
-        private bool TryCastToBaseRequestDTO(string value, out RequestDTOBase request)
+        private RequestsTypes.RequestType GetKind(string value)
         {
-            request = null;
+            return RequestsTypes.RequestType.Unset;
 
-            try
-            {
-                request = JsonConvert.DeserializeObject<RequestDTOBase>(value);
-                return request != null;
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
+            //try
+            //{
+            //    return JsonConvert.DeserializeObject<RequestDTOBase>(value).ToMaybe();
+            //}
+            //catch (Exception e)
+            //{
+            //    //TODO: log this
+            //    return Maybe<RequestDTOBase>.Empty();
+            //}
         }
 
         private ClientInfo CreateNewClientPredicate(HttpContext context, string name) => new ClientInfo

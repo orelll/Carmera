@@ -1,4 +1,5 @@
 using Carmera.Application.Services.Cache;
+using Carmera.Application.Services.RequestHandling.Factory;
 using Carmera.WebHost.Services.SocketsHandling;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,6 +35,9 @@ namespace Carmera.WebHost
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            var dto = new CheckoutRequestDTO();
+            var x = new RequestFactory();
 
             //TODO: why it breaks connection?
             //app.UseHttpsRedirection();
