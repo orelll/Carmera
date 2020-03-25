@@ -1,13 +1,12 @@
-﻿using Carmera.Application.Services.Cache;
-using Carmera.Common;
-using Carmera.Common.DTO;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Carmera.Application.Services.Cache;
+using Carmera.Common;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 
 namespace Carmera.WebHost.Services.SocketsHandling
 {
@@ -56,10 +55,13 @@ namespace Carmera.WebHost.Services.SocketsHandling
             RequestDTOBase request = null;
             var success = TryCastToBaseRequestDTO(message, out request);
 
-            var x = JsonConvert.DeserializeObject<CheckoutRequestDTO>(message);
-            //var key = new StringCacheKey { Value = resp };
-
-            //var clientInfo = _cacheHandler.GetOrCreateEntry(key, () => CreateNewClientPredicate(context, resp));
+            if (success)
+            {
+            }
+            else
+            {
+                context.Response.StatusCode = 400;
+            }
         }
 
         private string PrepareIncomingMessage(byte[] buffer)
