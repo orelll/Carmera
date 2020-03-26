@@ -1,6 +1,9 @@
 using Carmera.Application.Services.Cache;
+using Carmera.Application.Services.Logging;
+using Carmera.Application.Services.RequestHandling;
 using Carmera.Application.Services.RequestHandling.Factory;
 using Carmera.Common.DTO.Request;
+using Carmera.WebHost.Services.DTOProduction;
 using Carmera.WebHost.Services.SocketsHandling;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -24,7 +27,12 @@ namespace Carmera.WebHost
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddMemoryCache();
 
+            services.AddTransient<ILogger, ConsoleLogger>();
+            services.AddTransient<IDTOFactory, DTOFactory>();
+            services.AddTransient<IRequestFactory, RequestFactory>();
+            services.AddTransient<IRequestHandlingService, RequestHandlingService>();
             services.AddTransient<IRepository<ClientInfo>, CacheRepository<ClientInfo>>();
             services.AddTransient<IHandleWebSocket, WebSocketHandler>();
         }
@@ -36,9 +44,6 @@ namespace Carmera.WebHost
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            var dto = new CheckoutRequestDTO();
-            var x = new RequestFactory();
 
             //TODO: why it breaks connection?
             //app.UseHttpsRedirection();

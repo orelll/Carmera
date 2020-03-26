@@ -7,6 +7,9 @@ using Carmera.Application.Services.RequestHandling;
 using Carmera.Application.Services.RequestHandling.Factory;
 using Carmera.WebHost.Services.DTOProduction;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using static Carmera.Application.Services.RequestHandling.RequestsTypes;
 
 namespace Carmera.WebHost.Services.SocketsHandling
 {
@@ -82,19 +85,40 @@ namespace Carmera.WebHost.Services.SocketsHandling
             return resp;
         }
 
-        private RequestsTypes.RequestType GetKind(string value)
+        private RequestType GetKind(string message)
         {
-            return RequestsTypes.RequestType.Unset;
+            var requetType = RequestType.Unset;
+            var obj = (JObject)JsonConvert.DeserializeObject(message);
+            var found = obj.GetValue("kind").ToString();
 
-            //try
-            //{
-            //    return JsonConvert.DeserializeObject<RequestDTOBase>(value).ToMaybe();
-            //}
-            //catch (Exception e)
-            //{
-            //    //TODO: log this
-            //    return Maybe<RequestDTOBase>.Empty();
-            //}
+            if (!string.IsNullOrEmpty(found))
+            {
+                switch (found)
+                {
+                    //TODO: it's case sensitive!
+                    case nameof(RequestType.Checkout):
+                        requetType = RequestType.Checkout;
+                        break;
+
+                    case nameof(RequestType.GetPeer):
+                        requetType = RequestType.GetPeer;
+                        break;
+
+                    case nameof(RequestType.ListPeers):
+                        requetType = RequestType.ListPeers;
+                        break;
+
+                    case nameof(RequestType.Logout):
+                        requetType = RequestType.Logout;
+                        break;
+
+                    default:
+                        requetType = RequestType.Unset;
+                        break;
+                }
+            }
+
+            return requetType;
         }
 
         private ClientInfo CreateNewClientPredicate(HttpContext context, string name) => new ClientInfo
