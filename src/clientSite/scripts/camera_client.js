@@ -60,7 +60,7 @@ function sayHello() {
 
 class CheckoutDTO {
   constructor(name) {
-    this.name = name;
+    this.peerName = name;
     this.kind = "checkout";
   }
 }

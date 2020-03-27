@@ -2,7 +2,7 @@
 
 namespace Carmera.Application.Services.RequestHandling.Commands
 {
-    public class CheckoutCommand : ICommand<CheckoutRequestDTO>
+    public class CheckoutCommand : ICommand<CheckInRequestDTO>
     {
     }
 }

@@ -5,6 +5,6 @@ namespace Carmera.WebHost.Services.DTOProduction
 {
     public interface IDTOFactory
     {
-        RequestDTOBase ObtainDTO(RequestsTypes.RequestType requestType, string message);
+        RequestDTOBase ObtainDTO(RequestsTypes.RequestType requestType, PeerInfo peerInfo);
     }
 }

@@ -5,8 +5,8 @@
         public enum RequestType
         {
             Unset,
-            Checkout,
-            Logout,
+            CheckIn,
+            CheckOut,
             GetPeer,
             ListPeers
         }

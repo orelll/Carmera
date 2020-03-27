@@ -1,9 +1,11 @@
-﻿using Carmera.Common.DTO.Response;
+﻿using System.Net;
 
 namespace Carmera.Common.DTO.Request
 {
     public class RequestDTOBase
     {
-        public string Kind { get; set; }
+        public string PeerName { get; set; }
+        public IPAddress Address { get; set; }
+        public int Port { get; set; }
     }
 }

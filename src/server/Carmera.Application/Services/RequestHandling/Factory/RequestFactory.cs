@@ -10,7 +10,7 @@ namespace Carmera.Application.Services.RequestHandling.Factory
         {
             switch (request)
             {
-                case CheckoutRequestDTO c:
+                case CheckInRequestDTO c:
                     return new CheckoutCommand();
 
                 default:

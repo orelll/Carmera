@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -60,13 +61,14 @@ namespace Carmera.WebHost.Services.SocketsHandling
             await webSocket.SendAsync(new ArraySegment<byte>(_okMessage, 0, _okMessage.Length), result.MessageType, result.EndOfMessage, CancellationToken.None);
             await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "DUPA", CancellationToken.None);
 
-            var message = PrepareIncomingMessage(buffer);
+            var payload = PrepareIncomingMessage(buffer);
 
-            var requestKind = GetKind(message);
+            var requestKind = GetKind(payload);
 
-            if (requestKind > RequestsTypes.RequestType.Unset)
+            if (requestKind > RequestType.Unset)
             {
-                var dto = _dtoFactory.ObtainDTO(requestKind, message);
+                var peerInfo = PreparePeerInfo(context, payload);
+                var dto = _dtoFactory.ObtainDTO(requestKind, peerInfo);
                 var request = _requestFactory.CreateRequest(dto);
                 var response = _requestHandlingService.HandleRequest(request);
             }
@@ -93,39 +95,12 @@ namespace Carmera.WebHost.Services.SocketsHandling
 
             if (!string.IsNullOrEmpty(found))
             {
-                switch (found)
-                {
-                    //TODO: it's case sensitive!
-                    case nameof(RequestType.Checkout):
-                        requetType = RequestType.Checkout;
-                        break;
-
-                    case nameof(RequestType.GetPeer):
-                        requetType = RequestType.GetPeer;
-                        break;
-
-                    case nameof(RequestType.ListPeers):
-                        requetType = RequestType.ListPeers;
-                        break;
-
-                    case nameof(RequestType.Logout):
-                        requetType = RequestType.Logout;
-                        break;
-
-                    default:
-                        requetType = RequestType.Unset;
-                        break;
-                }
+                requetType = ((RequestType[])Enum.GetValues(typeof(RequestType))).FirstOrDefault(type => type.ToString().ToLower() == found.ToLower());
             }
 
             return requetType;
         }
 
-        private ClientInfo CreateNewClientPredicate(HttpContext context, string name) => new ClientInfo
-        {
-            Address = context.Connection.RemoteIpAddress,
-            Port = context.Connection.RemotePort,
-            Name = name
-        };
+        private PeerInfo PreparePeerInfo(HttpContext context, string payload) => new PeerInfo(payload, context.Connection.RemoteIpAddress, context.Connection.RemotePort);
     }
 }
