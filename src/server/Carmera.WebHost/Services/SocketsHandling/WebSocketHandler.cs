@@ -63,7 +63,7 @@ namespace Carmera.WebHost.Services.SocketsHandling
 
             var payload = PrepareIncomingMessage(buffer);
 
-            var requestKind = GetKind(payload);
+            var requestKind = GetRequestKind(payload);
 
             if (requestKind > RequestType.Unset)
             {
@@ -87,7 +87,7 @@ namespace Carmera.WebHost.Services.SocketsHandling
             return resp;
         }
 
-        private RequestType GetKind(string message)
+        private RequestType GetRequestKind(string message)
         {
             var requetType = RequestType.Unset;
             var obj = (JObject)JsonConvert.DeserializeObject(message);
