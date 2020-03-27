@@ -1,33 +1,45 @@
 ﻿using System;
 using Carmera.Application.Services.RequestHandling.Commands;
+using Carmera.Application.Services.RequestHandling.Commands.Results;
+using Carmera.Application.Services.RequestHandling.Contracts;
+using Carmera.Application.Services.RequestHandling.Query;
 using Carmera.Common.DTO.Request;
 
 namespace Carmera.Application.Services.RequestHandling.Factory
 {
     public class RequestFactory : IRequestFactory
     {
-        public IRequest CreateRequest<TIn>(TIn request) where TIn : RequestDTOBase
+        public IRequest<IResult> CreateRequest<TDTO>(TDTO request) where TDTO : RequestDTOBase
         {
-            switch (request)
+            try
             {
-                case CheckInRequestDTO dto:
-                    return ConvertToCheckInCommand(dto);
+                switch (request)
+                {
+                    case CheckInRequestDTO dto:
+                        return ConvertToCheckInCommand(dto);
 
-                case CheckOutRequestDTO dto:
-                    return ConvertToCheckOutCommand(dto);
+                    case CheckOutRequestDTO dto:
+                        return ConvertToCheckOutCommand(dto);
 
-                case GetPeerRequestDTO dto:
-                    return ConvertToGetPeerCommand(dto);
+                    case GetPeerRequestDTO dto:
+                        return ConvertToGetPeerCommand(dto);
 
-                default:
-                    throw new ArgumentException(request.GetType().Name);
+                    default:
+                        throw new ArgumentException(request.GetType().Name);
+                }
             }
+            catch (Exception e)
+            {
+
+                
+            }
+            return null;
         }
 
-        private CheckInCommand ConvertToCheckInCommand(CheckInRequestDTO dto) => new CheckInCommand(dto.PeerName, dto.Address, dto.Port);
+        private IRequest<IResult> ConvertToCheckInCommand(CheckInRequestDTO dto) => new CheckInCommand(dto.PeerName, dto.Address, dto.Port);
 
-        private CheckOutCommand ConvertToCheckOutCommand(CheckOutRequestDTO dto) => new CheckOutCommand(dto.PeerName, dto.Address, dto.Port);
+        private IRequest<IResult> ConvertToCheckOutCommand(CheckOutRequestDTO dto) => new CheckOutCommand(dto.PeerName, dto.Address, dto.Port);
 
-        private GetPeerCommand ConvertToGetPeerCommand(GetPeerRequestDTO dto) => new GetPeerCommand(dto.PeerName, dto.Address, dto.Port, dto.SecondSideName);
+        private IRequest<IResult> ConvertToGetPeerCommand(GetPeerRequestDTO dto) => new GetPeerQuery(dto.PeerName, dto.Address, dto.Port, dto.SecondSideName);
     }
 }

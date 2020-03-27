@@ -1,8 +1,10 @@
+using System;
+using Carmera.Application.Entities;
 using Carmera.Application.Services.Cache;
 using Carmera.Application.Services.Logging;
 using Carmera.Application.Services.RequestHandling;
 using Carmera.Application.Services.RequestHandling.Factory;
-using Carmera.Common.DTO.Request;
+using Carmera.Application.Services.RequestHandling.HandlersDispatcher;
 using Carmera.WebHost.Services.DTOProduction;
 using Carmera.WebHost.Services.SocketsHandling;
 using Microsoft.AspNetCore.Builder;
@@ -10,7 +12,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 
 namespace Carmera.WebHost
 {
@@ -32,6 +33,8 @@ namespace Carmera.WebHost
             services.AddTransient<ILogger, ConsoleLogger>();
             services.AddTransient<IDTOFactory, DTOFactory>();
             services.AddTransient<IRequestFactory, RequestFactory>();
+            services.AddTransient<IRequestHandlerDispatcher, RequestHandlerDispatcher>();
+
             services.AddTransient<IRequestHandlingService, RequestHandlingService>();
             services.AddTransient<IRepository<ClientInfo>, CacheRepository<ClientInfo>>();
             services.AddTransient<IHandleWebSocket, WebSocketHandler>();

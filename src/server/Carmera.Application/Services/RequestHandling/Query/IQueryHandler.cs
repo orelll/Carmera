@@ -2,7 +2,7 @@
 
 namespace Carmera.Application.Services.RequestHandling.Query
 {
-    public interface IQuery<TRes> : IRequest<TRes> where TRes: IResult
+    public interface IQueryHandler<TReq, TRes> : IRequestHandler<TReq, TRes> where TReq : IRequest<TRes> where TRes : IResult
     {
     }
 }

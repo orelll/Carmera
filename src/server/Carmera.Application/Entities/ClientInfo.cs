@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Carmera.WebHost
+namespace Carmera.Application.Entities
 {
     public class ClientInfo
     {

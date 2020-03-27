@@ -1,8 +1,9 @@
 ﻿using System.Net;
+using Carmera.Application.Services.RequestHandling.Contracts;
 
 namespace Carmera.Application.Services.RequestHandling.Commands
 {
-    public abstract class CommandBase<TReq> : ICommand<TReq>
+    public abstract class CommandBase<TResp> : ICommand<TResp> where TResp : IResult
     {
         public string PeerName { get; }
         public IPAddress Address { get; }
