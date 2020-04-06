@@ -2,7 +2,7 @@
 
 namespace Carmera.Application.Services.RequestHandling.Commands.Results
 {
-    public class CheckOutCommandResult : IResult
+    public class CheckOutCommandResult : Result
     {
     }
 }

@@ -5,6 +5,6 @@ namespace Carmera.Application.Services.RequestHandling.Factory
 {
     public interface IRequestFactory
     {
-        IRequest<IResult> CreateRequest<TDTO>(TDTO request) where TDTO : RequestDTOBase;
+        Request CreateRequest<TDTO>(TDTO request) where TDTO : RequestDTOBase;
     }
 }

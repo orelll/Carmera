@@ -2,7 +2,7 @@
 
 namespace Carmera.Application.Services.RequestHandling
 {
-    public class BaseResult : IResult
+    public class BaseResult : Result
     {
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Carmera.Application.Services.RequestHandling.Contracts
 {
-    public interface IRequest<out TResp> where TResp: IResult
+    public class Request
     {
         string PeerName { get; }
         IPAddress Address { get; }

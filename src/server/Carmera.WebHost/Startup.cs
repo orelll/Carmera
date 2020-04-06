@@ -5,6 +5,7 @@ using Carmera.Application.Services.Logging;
 using Carmera.Application.Services.RequestHandling;
 using Carmera.Application.Services.RequestHandling.Factory;
 using Carmera.Application.Services.RequestHandling.HandlersDispatcher;
+using Carmera.WebHost.AppStartup;
 using Carmera.WebHost.Services.DTOProduction;
 using Carmera.WebHost.Services.SocketsHandling;
 using Microsoft.AspNetCore.Builder;
@@ -30,14 +31,7 @@ namespace Carmera.WebHost
             services.AddControllers();
             services.AddMemoryCache();
 
-            services.AddTransient<ILogger, ConsoleLogger>();
-            services.AddTransient<IDTOFactory, DTOFactory>();
-            services.AddTransient<IRequestFactory, RequestFactory>();
-            services.AddTransient<IRequestHandlerDispatcher, RequestHandlerDispatcher>();
-
-            services.AddTransient<IRequestHandlingService, RequestHandlingService>();
-            services.AddTransient<IRepository<ClientInfo>, CacheRepository<ClientInfo>>();
-            services.AddTransient<IHandleWebSocket, WebSocketHandler>();
+            DI.RegisterAll(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

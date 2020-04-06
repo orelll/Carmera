@@ -4,6 +4,6 @@ namespace Carmera.Application.Services.RequestHandling.HandlersDispatcher
 {
     public interface IRequestHandlerDispatcher
     {
-        IRequestHandler<IRequest<IResult>, IResult> Dispatch(IRequest<IResult> request);
+        RequestHandler<TReq, Result> Dispatch<TReq>(TReq request) where TReq : Request;
     }
 }

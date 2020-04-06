@@ -1,14 +1,14 @@
 ﻿using System.Net;
 
-namespace Carmera.Application.Services.RequestHandling.Commands
+namespace Carmera.Application.Services.RequestHandling.Queries
 {
-    public abstract class CommandBase : Command
+    public class QueryBase : Query
     {
         public string PeerName { get; }
         public IPAddress Address { get; }
         public int Port { get; }
 
-        public CommandBase(string peerName, IPAddress address, int port)
+        public QueryBase(string peerName, IPAddress address, int port)
         {
             PeerName = peerName;
             Address = address;

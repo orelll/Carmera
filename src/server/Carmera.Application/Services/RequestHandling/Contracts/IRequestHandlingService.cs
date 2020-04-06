@@ -4,6 +4,6 @@ namespace Carmera.Application.Services.RequestHandling
 {
     public interface IRequestHandlingService
     {
-        IResult HandleRequest(IRequest<IResult> request);
+        Result HandleRequest<TReq>(TReq request) where TReq : Request;
     }
 }

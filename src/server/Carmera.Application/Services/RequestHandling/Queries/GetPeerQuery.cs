@@ -1,10 +1,8 @@
 ﻿using System.Net;
-using Carmera.Application.Services.RequestHandling.Commands;
-using Carmera.Application.Services.RequestHandling.Query.Results;
 
-namespace Carmera.Application.Services.RequestHandling.Query
+namespace Carmera.Application.Services.RequestHandling.Queries
 {
-    public class GetPeerQuery : CommandBase<GetPeerQueryResult>
+    public class GetPeerQuery : QueryBase
     {
         public string SecondPeerName { get; }
 

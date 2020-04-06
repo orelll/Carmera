@@ -2,7 +2,7 @@
 
 namespace Carmera.Application.Services.RequestHandling.Commands
 {
-    public interface ICommand<TResp> : IRequest<TResp> where TResp : IResult
+    public abstract class CommandHandler<TReq, TRes> : RequestHandler<TReq, TRes> where TReq: Request where TRes: Result
     {
     }
 }

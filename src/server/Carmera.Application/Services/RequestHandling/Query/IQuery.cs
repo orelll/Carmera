@@ -1,8 +1,0 @@
-﻿using Carmera.Application.Services.RequestHandling.Contracts;
-
-namespace Carmera.Application.Services.RequestHandling.Query
-{
-    public interface IQuery<TRes> : IRequest<TRes> where TRes: IResult
-    {
-    }
-}

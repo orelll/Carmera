@@ -1,15 +1,14 @@
-﻿using System;
-using Carmera.Application.Services.RequestHandling.Commands;
-using Carmera.Application.Services.RequestHandling.Commands.Results;
+﻿using Carmera.Application.Services.RequestHandling.Commands;
 using Carmera.Application.Services.RequestHandling.Contracts;
-using Carmera.Application.Services.RequestHandling.Query;
+using Carmera.Application.Services.RequestHandling.Queries;
 using Carmera.Common.DTO.Request;
+using System;
 
 namespace Carmera.Application.Services.RequestHandling.Factory
 {
     public class RequestFactory : IRequestFactory
     {
-        public IRequest<IResult> CreateRequest<TDTO>(TDTO request) where TDTO : RequestDTOBase
+        public Request CreateRequest<TDTO>(TDTO request) where TDTO : RequestDTOBase
         {
             try
             {
@@ -30,16 +29,14 @@ namespace Carmera.Application.Services.RequestHandling.Factory
             }
             catch (Exception e)
             {
-
-                
             }
             return null;
         }
 
-        private IRequest<IResult> ConvertToCheckInCommand(CheckInRequestDTO dto) => new CheckInCommand(dto.PeerName, dto.Address, dto.Port);
+        private Request ConvertToCheckInCommand(CheckInRequestDTO dto) => new CheckInCommand(dto.PeerName, dto.Address, dto.Port);
 
-        private IRequest<IResult> ConvertToCheckOutCommand(CheckOutRequestDTO dto) => new CheckOutCommand(dto.PeerName, dto.Address, dto.Port);
+        private Request ConvertToCheckOutCommand(CheckOutRequestDTO dto) => new CheckOutCommand(dto.PeerName, dto.Address, dto.Port);
 
-        private IRequest<IResult> ConvertToGetPeerCommand(GetPeerRequestDTO dto) => new GetPeerQuery(dto.PeerName, dto.Address, dto.Port, dto.SecondSideName);
+        private Request ConvertToGetPeerCommand(GetPeerRequestDTO dto) => new GetPeerQuery(dto.PeerName, dto.Address, dto.Port, dto.SecondSideName);
     }
 }
