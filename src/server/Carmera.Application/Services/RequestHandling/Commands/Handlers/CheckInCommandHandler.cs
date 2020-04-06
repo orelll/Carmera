@@ -18,11 +18,11 @@ namespace Carmera.Application.Services.RequestHandling.Commands.Handlers
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public override async Task<CheckInCommandResult> HandleAsync(CheckInCommand request)
+        public override CheckInCommandResult Handle(CheckInCommand request)
         {
             //TODO validate
             var castedCommand = request as CheckInCommand;
-            await _requestValidator.ValidateAndThrowAsync(castedCommand);
+            _requestValidator.ValidateAndThrow(castedCommand);
 
             var key = new StringCacheKey(request.PeerName.ToLower());
             var repositoryEntry = _repository.GetOrCreateEntry(key, () => CreatePeerInfoPredicate(castedCommand));

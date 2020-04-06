@@ -8,7 +8,7 @@ namespace Carmera.Application.Services.RequestHandling.Queries.Results
     {
         public IEnumerable<ClientInfo> PeersFound { get; }
 
-        public GetPeerQueryResult(IEnumerable<ClientInfo> peersFound, bool success, Exception exception = null, string message = null) : base(success, exception, message)
+        public GetPeerQueryResult(IEnumerable<ClientInfo> peersFound, bool success = true, Exception exception = null, string message = null) : base(success, exception, message)
         {
             PeersFound = peersFound;
         }

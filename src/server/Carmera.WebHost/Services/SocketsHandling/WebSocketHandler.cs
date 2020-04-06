@@ -16,7 +16,7 @@ namespace Carmera.WebHost.Services.SocketsHandling
 {
     public class WebSocketHandler : IHandleWebSocket
     {
-        private byte[] _okMessage = Encoding.UTF8.GetBytes("OK");
+        private byte[] _okMessage = ToUTF8ByteArray("OK");
         private IDTOFactory _dtoFactory;
         private IRequestFactory _requestFactory;
         private IRequestHandlingService _requestHandlingService;
@@ -59,7 +59,7 @@ namespace Carmera.WebHost.Services.SocketsHandling
             }
 
             await webSocket.SendAsync(new ArraySegment<byte>(_okMessage, 0, _okMessage.Length), result.MessageType, result.EndOfMessage, CancellationToken.None);
-            await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "DUPA", CancellationToken.None);
+            //await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "DUPA", CancellationToken.None);
 
             var payload = PrepareIncomingMessage(buffer);
 
@@ -71,6 +71,22 @@ namespace Carmera.WebHost.Services.SocketsHandling
                 var dto = _dtoFactory.ObtainDTO(requestKind, peerInfo);
                 var request = _requestFactory.CreateRequest(dto);
                 var response = _requestHandlingService.HandleRequest(request);
+
+                try
+                { 
+
+                    var settings = new JsonSerializerSettings();
+                    settings.Converters.Add(new IPAddressConverter());
+
+                    var serializedResponse = JsonConvert.SerializeObject(response, settings);
+                    var responseAsBytes = ToUTF8ByteArray(serializedResponse);
+                    await webSocket.SendAsync(new ArraySegment<byte>(responseAsBytes, 0, responseAsBytes.Length), result.MessageType, result.EndOfMessage, CancellationToken.None);
+                }
+                catch (Exception e)
+                {
+
+                }
+               
             }
             else
             {
@@ -102,5 +118,7 @@ namespace Carmera.WebHost.Services.SocketsHandling
         }
 
         private PeerInfo PreparePeerInfo(HttpContext context, string payload) => new PeerInfo(payload, context.Connection.RemoteIpAddress, context.Connection.RemotePort);
+
+        private static byte[] ToUTF8ByteArray(string text) => Encoding.UTF8.GetBytes(text);
     }
 }

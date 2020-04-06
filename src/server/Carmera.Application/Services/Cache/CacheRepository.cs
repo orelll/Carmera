@@ -1,6 +1,7 @@
 ﻿using System;
 using Carmera.Application.Services.Logging;
 using Carmera.Common;
+using Carmera.Common.Extensions;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Carmera.Application.Services.Cache
@@ -16,16 +17,22 @@ namespace Carmera.Application.Services.Cache
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        public Maybe<T> GetEntry(CacheKey key)
+        {
+             _cache.TryGetValue(key, out Maybe<T> cacheEntry);
+            return cacheEntry;
+        }
+
         public Maybe<T> GetOrCreateEntry(CacheKey key, Func<T> createItem)
         {
             _cache.TryGetValue(key, out Maybe<T> cacheEntry);
 
-            if (!cacheEntry.HasValue)
+            if (!cacheEntry?.HasValue != true)
             {
                 try
                 {
                     var x = createItem();
-                    cacheEntry = x as Maybe<T>;
+                    cacheEntry = x.ToMaybe();
                     _cache.Set(key, cacheEntry);
                 }
                 catch (Exception ex)

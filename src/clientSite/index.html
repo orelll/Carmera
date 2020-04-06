@@ -11,20 +11,17 @@
   </head>
 
   <body>
-    <div class="left">
+    <!-- <div class="left">
       <video id="localVideo" autoplay playsinline controls="false" />
     </div>
     <div class="right">
       <video id="remoteVideo" autoplay playsinline controls="false" />
+    </div> -->
+    <button onclick="checkIn()" id="make call">check in</button>
+    <div>
+      <input type="text" id="secondPeerName"/>
+      <button onclick="lookForPeer('#secondPeerName')">look for peer</button>
     </div>
-    <div class="box">
-      <span>SDP Semantics:</span>
-      <select id="sdpSemantics">
-        <option selected value="">Default</option>
-        <option value="unified-plan">Unified Plan</option>
-        <option value="plan-b">Plan B</option>
-      </select>
-      <button onclick="sayHello()" id="make call">test socket</button>
     
     </div>
     <script src="scripts/camera_client.js"></script>

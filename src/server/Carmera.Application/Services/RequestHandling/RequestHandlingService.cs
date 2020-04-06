@@ -6,6 +6,7 @@ using Carmera.Application.Services.RequestHandling.Queries;
 using Carmera.Application.Services.RequestHandling.Queries.Handlers;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Carmera.Application.Services.RequestHandling
 {
@@ -26,19 +27,22 @@ namespace Carmera.Application.Services.RequestHandling
         public Result HandleRequest<TReq>(TReq request) where TReq : Request
         {
             var found = _handlers[request.GetType()];
+            Result response = null;
+
             try
             {
                 var handler = found.Invoke();
                 var handlerType = handler.GetType();
-                var handlingMethodInfo = handlerType.GetMethod("HandleAsync");
-                handlingMethodInfo.Invoke(handler, new object[] { request });
+                var handlingMethodInfo = handlerType.GetMethod("Handle");
+                var result = handlingMethodInfo.Invoke(handler, new object[] { request });
+                response = result as Result;
             }
             catch (Exception a)
             {
                 _logger.Error("Error during invoking handler", a);
             }
 
-            return null;
+            return response;
         }
 
         private void PrepareHandlersList()
