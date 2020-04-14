@@ -32,7 +32,8 @@ async function makeCall() {
 function checkIn() {
   socket = new WebSocket("ws://localhost:5000/ws");
   socket.onmessage = function (event) {
-    console.log(`[message] Data received from server: ${event.data}`);
+    var deserializedMessage = JSON.parse(event.data);
+    console.log(`checkout succeded: ${deserializedMessage.Success}`);
   };
 
   socket.onopen = function (e) {
@@ -61,7 +62,9 @@ function checkIn() {
 function lookForPeer(peerName) {
   socket = new WebSocket("ws://localhost:5000/ws");
   socket.onmessage = function (event) {
-    console.log(`[message] Data received from server: ${event.data}`);
+    var deserializedMessage = JSON.parse(event.data);
+    console.log(`Peer search succeeded: ${deserializedMessage.Success}`);
+    deserializedMessage.PeersFound.forEach(printFoundPeer);
   };
 
   socket.onopen = function (e) {
@@ -86,6 +89,25 @@ function lookForPeer(peerName) {
     }
   };
 }
+
+async function makeCall() {
+  const configuration  = {"iceServers": [{"urls": "stun:stun.l.google.com:19302"}]};
+  const peerConnection = new RTCPeerConnection(configuration);
+  // signalingChannel.addEventListener('message', async message => {
+  //     if (message.answer) {
+  //         const remoteDesc = new RTCSessionDescription(message.answer);
+  //         await peerConnection.setRemoteDescription(remoteDesc);
+  //     }
+  // });
+  const offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+  // signalingChannel.send({'offer': offer});
+}
+
+
+function printFoundPeer(item, index) {
+  console.log(`Peer found: ${item.Address}:${item.Port}`);
+} 
 
 class CheckoutDTO {
   constructor(name) {

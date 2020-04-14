@@ -1,25 +1,28 @@
-﻿using System;
-using System.Linq;
-using System.Net.WebSockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Carmera.Application.Services.RequestHandling;
+﻿using Carmera.Application.Services.RequestHandling;
 using Carmera.Application.Services.RequestHandling.Factory;
+using Carmera.Common;
 using Carmera.WebHost.Services.DTOProduction;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Linq;
+using System.Net;
+using System.Net.WebSockets;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using static Carmera.Application.Services.RequestHandling.RequestsTypes;
 
 namespace Carmera.WebHost.Services.SocketsHandling
 {
     public class WebSocketHandler : IHandleWebSocket
     {
-        private byte[] _okMessage = ToUTF8ByteArray("OK");
+        private byte[] _okMessage = Tools.StringToUTF8ByteArray("OK");
         private IDTOFactory _dtoFactory;
         private IRequestFactory _requestFactory;
         private IRequestHandlingService _requestHandlingService;
+        private IPAddress[] _localIPs = Dns.GetHostAddresses(Dns.GetHostName());
 
         public WebSocketHandler(IDTOFactory dtoFactory, IRequestFactory requestFactory, IRequestHandlingService requestHandlingService)
         {
@@ -49,6 +52,8 @@ namespace Carmera.WebHost.Services.SocketsHandling
             }
         }
 
+        private IPAddress LocalIPv4Address => _localIPs.FirstOrDefault(add => add.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+
         private async Task HandleRequest(HttpContext context, WebSocket webSocket)
         {
             var buffer = new byte[1024 * 4];
@@ -73,20 +78,16 @@ namespace Carmera.WebHost.Services.SocketsHandling
                 var response = _requestHandlingService.HandleRequest(request);
 
                 try
-                { 
-
+                {
                     var settings = new JsonSerializerSettings();
                     settings.Converters.Add(new IPAddressConverter());
-
                     var serializedResponse = JsonConvert.SerializeObject(response, settings);
-                    var responseAsBytes = ToUTF8ByteArray(serializedResponse);
+                    var responseAsBytes = Tools.StringToUTF8ByteArray(serializedResponse);
                     await webSocket.SendAsync(new ArraySegment<byte>(responseAsBytes, 0, responseAsBytes.Length), result.MessageType, result.EndOfMessage, CancellationToken.None);
                 }
                 catch (Exception e)
                 {
-
                 }
-               
             }
             else
             {
@@ -117,8 +118,13 @@ namespace Carmera.WebHost.Services.SocketsHandling
             return requetType;
         }
 
-        private PeerInfo PreparePeerInfo(HttpContext context, string payload) => new PeerInfo(payload, context.Connection.RemoteIpAddress, context.Connection.RemotePort);
+        private PeerInfo PreparePeerInfo(HttpContext context, string payload)
+        {
+            var peerAddress = IsIPv6LocalhostLoopback(context.Connection.RemoteIpAddress) ? LocalIPv4Address : context.Connection.RemoteIpAddress;
 
-        private static byte[] ToUTF8ByteArray(string text) => Encoding.UTF8.GetBytes(text);
+            return new PeerInfo(payload, peerAddress, context.Connection.RemotePort);
+        }
+
+        private bool IsIPv6LocalhostLoopback(IPAddress address) => address.Equals(IPAddress.IPv6Loopback);
     }
 }

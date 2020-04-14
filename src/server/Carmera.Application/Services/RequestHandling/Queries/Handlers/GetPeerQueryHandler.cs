@@ -3,7 +3,6 @@ using Carmera.Application.Services.Cache;
 using Carmera.Application.Services.RequestHandling.Queries.Results;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Carmera.Application.Services.RequestHandling.Queries.Handlers
 {
@@ -20,7 +19,6 @@ namespace Carmera.Application.Services.RequestHandling.Queries.Handlers
         {
             var searchKey = new StringCacheKey(request.SecondPeerName);
             var found = _repository.GetEntry(searchKey);
-
 
             return new GetPeerQueryResult(new List<ClientInfo> { found?.Value });
         }
