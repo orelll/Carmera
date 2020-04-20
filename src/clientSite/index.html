@@ -17,12 +17,13 @@
     <div class="right">
       <video id="remoteVideo" autoplay playsinline controls="false" />
     </div> -->
-    <button onclick="checkIn()" id="make call">check in</button>
+    <button onclick="startServer()" id="make call">check in as carmera</button>
     <div>
       <input type="text" id="secondPeerName"/>
       <button onclick="lookForPeer('#secondPeerName')">look for peer</button>
     </div>
-    <button onclick="makeCall()" id="make call">try making call</button>
+    <button onclick="startServer()" id="make call">start server</button>
+    <button onclick="sendOffer()" id="make call">send offer</button>
     
     </div>
     <script src="scripts/camera_client.js"></script>

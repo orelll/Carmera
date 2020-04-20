@@ -53,6 +53,7 @@ namespace Carmera.WebHost.AppStartup
             services.AddTransient<CheckInCommandHandler>();
             services.AddTransient<CheckOutCommandHandler>();
             services.AddTransient<GetPeerQueryHandler>();
+            services.AddTransient<OfferQueryHandler>();
         }
     }
 }

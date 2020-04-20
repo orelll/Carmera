@@ -25,6 +25,10 @@ namespace Carmera.WebHost.Services.DTOProduction
                     deserializedRequest = JsonConvert.DeserializeObject<GetPeerRequestDTO>(peerInfo.Payload);
                     break;
 
+                case RequestsTypes.RequestType.Offer:
+                    deserializedRequest = JsonConvert.DeserializeObject<OfferRequestDTO>(peerInfo.Payload);
+                    break;
+
                 default:
                     throw new ArgumentException("Request type not handled");
             }

@@ -8,7 +8,8 @@
             CheckIn,
             CheckOut,
             GetPeer,
-            ListPeers
+            ListPeers,
+            Offer
         }
     }
 }

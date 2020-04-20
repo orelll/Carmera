@@ -21,7 +21,10 @@ namespace Carmera.Application.Services.RequestHandling.Factory
                         return ConvertToCheckOutCommand(dto);
 
                     case GetPeerRequestDTO dto:
-                        return ConvertToGetPeerCommand(dto);
+                        return ConvertToGetPeerCommand(dto);                    
+                        
+                    case OfferRequestDTO dto:
+                        return ConvertToOfferCommand(dto);
 
                     default:
                         throw new ArgumentException(request.GetType().Name);
@@ -38,5 +41,6 @@ namespace Carmera.Application.Services.RequestHandling.Factory
         private Request ConvertToCheckOutCommand(CheckOutRequestDTO dto) => new CheckOutCommand(dto.PeerName, dto.Address, dto.Port);
 
         private Request ConvertToGetPeerCommand(GetPeerRequestDTO dto) => new GetPeerQuery(dto.PeerName, dto.Address, dto.Port, dto.SecondSideName);
+        private Request ConvertToOfferCommand(OfferRequestDTO dto) => new OfferQuery(dto.PeerName, dto.Address, dto.Port, dto.OfferData);
     }
 }

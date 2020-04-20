@@ -51,7 +51,8 @@ namespace Carmera.Application.Services.RequestHandling
             {
                 { typeof(CheckInCommand), () => _serviceProvider.GetService(typeof(CheckInCommandHandler)) },
                 { typeof(CheckOutCommand), () => _serviceProvider.GetService(typeof(CheckOutCommandHandler)) },
-                { typeof(GetPeerQuery), () => _serviceProvider.GetService(typeof(GetPeerQueryHandler)) }
+                { typeof(GetPeerQuery), () => _serviceProvider.GetService(typeof(GetPeerQueryHandler)) },
+                { typeof(OfferQuery), () => _serviceProvider.GetService(typeof(OfferQueryHandler)) }
             };
         }
     }

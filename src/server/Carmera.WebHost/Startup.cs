@@ -1,12 +1,5 @@
 using System;
-using Carmera.Application.Entities;
-using Carmera.Application.Services.Cache;
-using Carmera.Application.Services.Logging;
-using Carmera.Application.Services.RequestHandling;
-using Carmera.Application.Services.RequestHandling.Factory;
-using Carmera.Application.Services.RequestHandling.HandlersDispatcher;
 using Carmera.WebHost.AppStartup;
-using Carmera.WebHost.Services.DTOProduction;
 using Carmera.WebHost.Services.SocketsHandling;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
