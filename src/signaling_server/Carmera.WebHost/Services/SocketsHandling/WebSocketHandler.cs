@@ -1,17 +1,17 @@
-﻿using Carmera.Application.Services.RequestHandling;
-using Carmera.Application.Services.RequestHandling.Factory;
-using Carmera.Common;
-using Carmera.WebHost.Services.DTOProduction;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Carmera.Application.Services.RequestHandling;
+using Carmera.Application.Services.RequestHandling.Factory;
+using Carmera.Common;
+using Carmera.WebHost.Services.DTOProduction;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using static Carmera.Application.Services.RequestHandling.RequestsTypes;
 
 namespace Carmera.WebHost.Services.SocketsHandling
@@ -63,37 +63,39 @@ namespace Carmera.WebHost.Services.SocketsHandling
                 result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             }
 
-            await webSocket.SendAsync(new ArraySegment<byte>(_okMessage, 0, _okMessage.Length), result.MessageType, result.EndOfMessage, CancellationToken.None);
-            //await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "DUPA", CancellationToken.None);
-
+            await webSocket.SendAsync(new ArraySegment<byte>(_okMessage, 0, _okMessage.Length), result.MessageType, true, CancellationToken.None);
+            
             var payload = PrepareIncomingMessage(buffer);
-
-            var requestKind = GetRequestKind(payload);
-
-            if (requestKind > RequestType.Unset)
+            try
             {
-                var peerInfo = PreparePeerInfo(context, payload);
-                var dto = _dtoFactory.ObtainDTO(requestKind, peerInfo);
-                var request = _requestFactory.CreateRequest(dto);
-                var response = _requestHandlingService.HandleRequest(request);
+                var requestKind = GetRequestKind(payload);
 
-                try
+                if (requestKind > RequestType.Unset)
                 {
+                    var peerInfo = PreparePeerInfo(context, payload);
+                    var dto = _dtoFactory.ObtainDTO(requestKind, peerInfo);
+                    var request = _requestFactory.CreateRequest(dto);
+                    var response = _requestHandlingService.HandleRequest(request);
+
                     var settings = new JsonSerializerSettings();
                     settings.Converters.Add(new IPAddressConverter());
                     var serializedResponse = JsonConvert.SerializeObject(response, settings);
                     var responseAsBytes = Tools.StringToUTF8ByteArray(serializedResponse);
-                    await webSocket.SendAsync(new ArraySegment<byte>(responseAsBytes, 0, responseAsBytes.Length), result.MessageType, result.EndOfMessage, CancellationToken.None);
-                    context.Response.StatusCode = 200;
+                    await webSocket.SendAsync(new ArraySegment<byte>(responseAsBytes, 0, responseAsBytes.Length), result.MessageType, true, CancellationToken.None);
                 }
-                catch (Exception e)
+                else
                 {
+                    context.Response.StatusCode = 400;
+                    var responseAsBytes = Tools.StringToUTF8ByteArray("hujopwe zapytanie");
+                    await webSocket.SendAsync(new ArraySegment<byte>(responseAsBytes, 0, responseAsBytes.Length), result.MessageType, true, CancellationToken.None);
                 }
             }
-            else
+            catch (Exception e)
             {
-                context.Response.StatusCode = 400;
+                var responseAsBytes = Tools.StringToUTF8ByteArray("zjebało się!");
+                await webSocket.SendAsync(new ArraySegment<byte>(responseAsBytes, 0, responseAsBytes.Length), result.MessageType, true, CancellationToken.None);
             }
+            //await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "dupalala", new CancellationToken());
         }
 
         private string PrepareIncomingMessage(byte[] buffer)
