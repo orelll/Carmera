@@ -5,7 +5,7 @@ import * as socketIo from 'socket.io-client';
 import { Observable } from 'rxjs/internal/Observable';
 import { Event } from '../model/event';
 
-const SERVER_URL = 'http://localhost:8080';
+const SERVER_URL = 'http://localhost:5000';
 
 @Injectable({
   providedIn: 'root',

@@ -2,6 +2,7 @@ using System;
 using Carmera.WebHost.AppStartup;
 using Carmera.WebHost.Services.SocketsHandling;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +12,8 @@ namespace Carmera.WebHost
 {
     public class Startup
     {
+
+        private readonly string _allowAllOriginsPolicy = @"_allowAllOriginsPolicy";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -21,6 +24,17 @@ namespace Carmera.WebHost
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(_allowAllOriginsPolicy, builder => 
+                {
+                    builder.AllowAnyOrigin();
+                    builder.AllowAnyMethod();
+                    builder.AllowAnyHeader();
+                    builder.AllowCredentials();
+                });
+            });
+
             services.AddControllers();
             services.AddMemoryCache();
 
@@ -38,11 +52,9 @@ namespace Carmera.WebHost
             //TODO: why it breaks connection?
             //app.UseHttpsRedirection();
 
+            // app.UseCors(_allowAllOriginsPolicy);
             app.UseRouting();
-            app.UseExceptionHandler(app =>
-            {
-                Console.WriteLine("zesra³o siê xD");
-            });
+
             app.UseAuthorization();
 
             var webSocketOptions = new WebSocketOptions()
