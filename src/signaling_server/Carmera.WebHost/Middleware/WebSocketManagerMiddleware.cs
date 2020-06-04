@@ -20,25 +20,17 @@ namespace Carmera.WebHost.Middleware
         public async Task Invoke(HttpContext context, Func<Task> next)
         {
             _log.LogDebug($@"New request {context.Request.Body}");
-            if (context.Request.Path == "/ws")
+
+            if (context.WebSockets.IsWebSocketRequest)
             {
-                if (context.WebSockets.IsWebSocketRequest)
-                {
-                    WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                    _log.LogDebug("Its a socket");
-                    await Echo(context, webSocket);
-                }
-                else
-                {
-                    context.Response.StatusCode = 400;
-                }
+                WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                _log.LogDebug("Its a socket");
+                await Echo(context, webSocket);
             }
             else
             {
-                await next();
+                context.Response.StatusCode = 400;
             }
-
-
         }
 
         private async Task Echo(HttpContext context, WebSocket webSocket)

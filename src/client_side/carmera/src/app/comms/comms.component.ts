@@ -18,26 +18,29 @@ export class CommsComponent implements OnInit {
   messageContent: string;
   ioConnection: any;
 
-  constructor(private socketService: SocketService) {}
+  constructor(private socketService: SocketService) { }
 
   ngOnInit(): void {
-    this.initIoConnection();
   }
 
-  private initIoConnection(): void {
+  public initWSConnection(): void {
+    console.log(`Initializing socket...`);
     this.socketService.initSocket();
 
     this.ioConnection = this.socketService.onMessage().subscribe((message: Message) => {
       this.messages.push(message);
     });
 
-    this.socketService.onEvent(Event.CONNECT).subscribe(() => {
-      console.log('connected');
-    });
+  }
 
-    this.socketService.onEvent(Event.DISCONNECT).subscribe(() => {
-      console.log('disconnected');
-    });
+  public doCheckout() {
+    var msg = {
+      from: this.user,
+      content: `checkout!`,
+    };
+
+    var msgAsText = JSON.stringify(msg);
+    this.socketService.send(msgAsText);
   }
 
   public sendMessage(message: string): void {
@@ -45,31 +48,38 @@ export class CommsComponent implements OnInit {
       return;
     }
 
-    this.socketService.send({
+    var msg = {
       from: this.user,
       content: message,
-    });
-    this.messageContent = null;
+    };
+
+    var msgAsText = JSON.stringify(msg);
+
+    this.socketService.send(msgAsText);
   }
 
-  public sendNotification(params: any, action: Action): void {
-    let message: Message;
-
-    if (action === Action.JOINED) {
-      message = {
-        from: this.user,
-        action,
-      };
-    } else if (action === Action.RENAME) {
-      message = {
-        action,
-        content: {
-          username: this.user.name,
-          previousUsername: params.previousUsername,
-        },
-      };
-    }
-
-    this.socketService.send(message);
+  public closeWS() {
+    this.socketService.closeSocket();
   }
+
+  // public sendNotification(params: any, action: Action): void {
+  //   let message: Message;
+
+  //   if (action === Action.JOINED) {
+  //     message = {
+  //       from: this.user,
+  //       action,
+  //     };
+  //   } else if (action === Action.RENAME) {
+  //     message = {
+  //       action,
+  //       content: {
+  //         username: this.user.name,
+  //         previousUsername: params.previousUsername,
+  //       },
+  //     };
+  //   }
+
+  //   this.socketService.send(message);
+  // }
 }
