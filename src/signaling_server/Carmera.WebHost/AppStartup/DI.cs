@@ -13,6 +13,7 @@ using Carmera.Application.Services.RequestHandling.Queries;
 using Carmera.Application.Services.RequestHandling.Queries.Handlers;
 using Carmera.Application.Services.RequestHandling.Queries.Results;
 using Carmera.Application.Services.RequestHandling.Queries.Validators;
+using Carmera.WebHost.Middleware;
 using Carmera.WebHost.Services.DTOProduction;
 using Carmera.WebHost.Services.SocketsHandling;
 using FluentValidation;
@@ -24,6 +25,8 @@ namespace Carmera.WebHost.AppStartup
     {
         public static void RegisterAll(IServiceCollection services)
         {
+            services.AddTransient<WebSocketManagerMiddleware>();
+
             RegisterValidators(services);
             RegisterServices(services);
             RegisterRequestHandlers(services);

@@ -1,8 +1,6 @@
-using System;
 using Carmera.WebHost.AppStartup;
-using Carmera.WebHost.Services.SocketsHandling;
+using Carmera.WebHost.Middleware;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,18 +22,7 @@ namespace Carmera.WebHost
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options =>
-            {
-                options.AddPolicy(_allowAllOriginsPolicy, builder => 
-                {
-                    builder.AllowAnyOrigin();
-                    builder.AllowAnyMethod();
-                    builder.AllowAnyHeader();
-                    builder.AllowCredentials();
-                });
-            });
-
-            services.AddControllers();
+              services.AddControllers();
             services.AddMemoryCache();
 
             DI.RegisterAll(services);
@@ -49,22 +36,30 @@ namespace Carmera.WebHost
                 app.UseDeveloperExceptionPage();
             }
 
-            //TODO: why it breaks connection?
-            //app.UseHttpsRedirection();
+            var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
+            var serviceProvider = serviceScopeFactory.CreateScope().ServiceProvider;
 
-            // app.UseCors(_allowAllOriginsPolicy);
+            app.UseWebSockets();
+            app.UseStaticFiles();
+
+            // Make sure the CORS middleware is ahead of SignalR.
+            app.UseCors(builder =>
+            {
+                builder
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin();
+            });
+
+            app.Use(async (context, next) =>
+            {
+                var webSocketHandler = serviceProvider.GetService(typeof(WebSocketManagerMiddleware)) as WebSocketManagerMiddleware;
+                await webSocketHandler.Invoke(context, next);
+            });
+
             app.UseRouting();
 
             app.UseAuthorization();
-
-            var webSocketOptions = new WebSocketOptions()
-            {
-                KeepAliveInterval = TimeSpan.FromSeconds(120),
-                ReceiveBufferSize = 4 * 1024
-            };
-            app.UseWebSockets();
-            var wsHandler = app.ApplicationServices.GetService<IHandleWebSocket>();
-            app.Use(async (context, next) => await wsHandler.CatchWebSocket(context, next));
 
             app.UseEndpoints(endpoints =>
             {
