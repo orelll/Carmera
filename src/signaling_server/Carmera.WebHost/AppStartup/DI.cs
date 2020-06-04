@@ -25,6 +25,7 @@ namespace Carmera.WebHost.AppStartup
     {
         public static void RegisterAll(IServiceCollection services)
         {
+            services.AddTransient<ExceptionHandlingMiddleware>();
             services.AddTransient<WebSocketManagerMiddleware>();
 
             RegisterValidators(services);
