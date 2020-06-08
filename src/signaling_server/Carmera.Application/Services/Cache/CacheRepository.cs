@@ -6,7 +6,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Carmera.Application.Services.Cache
 {
-    public class CacheRepository<T> : IRepository<T> where T: class
+    public class CacheRepository : IRepository
     {
         private IMemoryCache _cache;
         private ILogger _logger;
@@ -17,15 +17,15 @@ namespace Carmera.Application.Services.Cache
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Maybe<T> GetEntry(CacheKey key)
+        public Maybe<CacheEntry> GetEntry(CacheKey key)
         {
-             _cache.TryGetValue(key, out Maybe<T> cacheEntry);
+             _cache.TryGetValue(key, out Maybe<CacheEntry> cacheEntry);
             return cacheEntry;
         }
 
-        public Maybe<T> GetOrCreateEntry(CacheKey key, Func<T> createItem)
+        public Maybe<CacheEntry> GetOrCreateEntry(CacheKey key, Func<CacheEntry> createItem)
         {
-            _cache.TryGetValue(key, out Maybe<T> cacheEntry);
+            _cache.TryGetValue(key, out Maybe<CacheEntry> cacheEntry);
 
             if (!cacheEntry?.HasValue != true)
             {

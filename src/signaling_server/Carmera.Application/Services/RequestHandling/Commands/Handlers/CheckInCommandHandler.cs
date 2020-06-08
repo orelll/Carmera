@@ -10,9 +10,9 @@ namespace Carmera.Application.Services.RequestHandling.Commands.Handlers
     public class CheckInCommandHandler : CommandHandler<CheckInCommand, CheckInCommandResult>
     {
         private AbstractValidator<CheckInCommand> _requestValidator;
-        private IRepository<ClientInfo> _repository;
+        private IRepository _repository;
 
-        public CheckInCommandHandler(AbstractValidator<CheckInCommand> validator, IRepository<ClientInfo> repository)
+        public CheckInCommandHandler(AbstractValidator<CheckInCommand> validator, IRepository repository)
         {
             _requestValidator = validator ?? throw new ArgumentNullException(nameof(validator));
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
@@ -25,13 +25,15 @@ namespace Carmera.Application.Services.RequestHandling.Commands.Handlers
             _requestValidator.ValidateAndThrow(castedCommand);
 
             var key = new StringCacheKey(request.PeerName.ToLower());
-            var repositoryEntry = _repository.GetOrCreateEntry(key, () => CreatePeerInfoPredicate(castedCommand));
+            var repositoryEntry = _repository.GetOrCreateEntry(key, () => CreatePeerInfoCacheKey(castedCommand, key));
 
-            var result = new CheckInCommandResult(repositoryEntry.Value.Id, true);
+            var result = new CheckInCommandResult(((ClientInfo)repositoryEntry.Value.Value).Id, true);
 
             return result;
         }
 
-        private ClientInfo CreatePeerInfoPredicate(CheckInCommand command) => new ClientInfo { Address = command.Address, Name = command.PeerName, Port = command.Port, Id = Guid.NewGuid() };
+        private CacheEntry CreatePeerInfoCacheKey(CheckInCommand request, StringCacheKey key) => new CacheEntry(key, GetClientInfo(request));
+
+        private ClientInfo GetClientInfo(CheckInCommand request) => new ClientInfo { Address = request.Address, Name = request.PeerName, Port = request.Port, Id = Guid.NewGuid() };
     }
 }

@@ -11,7 +11,6 @@ using Carmera.Application.Services.RequestHandling.Factory;
 using Carmera.Application.Services.RequestHandling.HandlersDispatcher;
 using Carmera.Application.Services.RequestHandling.Queries;
 using Carmera.Application.Services.RequestHandling.Queries.Handlers;
-using Carmera.Application.Services.RequestHandling.Queries.Results;
 using Carmera.Application.Services.RequestHandling.Queries.Validators;
 using Carmera.WebHost.Middleware;
 using Carmera.WebHost.Services.DTOProduction;
@@ -48,7 +47,7 @@ namespace Carmera.WebHost.AppStartup
             services.AddTransient<IRequestHandlerDispatcher, RequestHandlerDispatcher>();
 
             services.AddTransient<IRequestHandlingService, RequestHandlingService>();
-            services.AddTransient<IRepository<ClientInfo>, CacheRepository<ClientInfo>>();
+            services.AddTransient<IRepository, CacheRepository>();
             services.AddTransient<IHandleWebSocket, WebSocketHandler>();
         }
 

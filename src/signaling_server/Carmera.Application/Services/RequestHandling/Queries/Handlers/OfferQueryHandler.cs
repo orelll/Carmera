@@ -1,22 +1,17 @@
-﻿using Carmera.Application.Entities;
-using Carmera.Application.Services.Cache;
+﻿using Carmera.Application.Services.Cache;
 using Carmera.Application.Services.Logging;
 using Carmera.Application.Services.RequestHandling.Queries.Results;
 using Carmera.Common;
 using System;
-using System.Net.Sockets;
-using System.Net.WebSockets;
-using System.Threading;
-using WebSocketSharp;
 
 namespace Carmera.Application.Services.RequestHandling.Queries.Handlers
 {
     public class OfferQueryHandler : QueryHandler<OfferQuery, OfferResult>
     {
-        private IRepository<ClientInfo> _repository;
+        private IRepository _repository;
         private ILogger _logger;
 
-        public OfferQueryHandler(IRepository<ClientInfo> repository, ILogger logger)
+        public OfferQueryHandler(IRepository repository, ILogger logger)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

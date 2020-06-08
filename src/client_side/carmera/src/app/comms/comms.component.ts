@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
 import { Action } from './shared/model/action';
-import { Event } from './shared/model/event';
 import { Message } from './shared/model/message';
 import { User } from './shared/model/user';
 import { SocketService } from './shared/services/socket.service';
@@ -36,7 +35,8 @@ export class CommsComponent implements OnInit {
   public doCheckout() {
     var msg = {
       from: this.user,
-      content: `checkout`,
+      content: `checkin`,
+      peerName: `carmera`
     };
 
     var msgAsText = JSON.stringify(msg);

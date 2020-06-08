@@ -8,9 +8,9 @@ namespace Carmera.Application.Services.RequestHandling.Queries.Handlers
 {
     public class GetPeerQueryHandler : QueryHandler<GetPeerQuery, GetPeerQueryResult>
     {
-        private IRepository<ClientInfo> _repository;
+        private IRepository _repository;
 
-        public GetPeerQueryHandler(IRepository<ClientInfo> repository)
+        public GetPeerQueryHandler(IRepository repository)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
@@ -20,7 +20,7 @@ namespace Carmera.Application.Services.RequestHandling.Queries.Handlers
             var searchKey = new StringCacheKey(request.SecondPeerName);
             var found = _repository.GetEntry(searchKey);
 
-            return new GetPeerQueryResult(new List<ClientInfo> { found?.Value });
+            return new GetPeerQueryResult(new List<ClientInfo> { found?.Value.Value as ClientInfo });
         }
     }
 }

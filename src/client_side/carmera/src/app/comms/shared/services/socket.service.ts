@@ -16,7 +16,8 @@ export class SocketService {
     this.socket = new WebSocket(`ws://${SERVER_URL}/ws`);
     this.socket.onopen = function (event) {
       var checkoutDTO = {
-        kind: "checkout",
+        kind: "checkin",
+        peerName: `carmera`
       };
 
       var DTOasString = JSON.stringify(checkoutDTO);

@@ -3,10 +3,10 @@ using System;
 
 namespace Carmera.Application.Services.Cache
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository
     {
-        Maybe<T> GetOrCreateEntry(CacheKey key, Func<T> predicate);
+        Maybe<CacheEntry> GetOrCreateEntry(CacheKey key, Func<CacheEntry> predicate);
 
-        Maybe<T> GetEntry(CacheKey key);
+        Maybe<CacheEntry> GetEntry(CacheKey key);
     }
 }

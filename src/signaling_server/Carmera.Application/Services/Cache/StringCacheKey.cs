@@ -2,18 +2,18 @@
 {
     public class StringCacheKey : CacheKey
     {
-        public string Value { get; set; }
+        public string Key { get; set; }
 
-        public StringCacheKey(string value) => Value = value;
+        public StringCacheKey(string key) => Key = key;
 
         public override bool Equals(object obj)
         {
-            return ((StringCacheKey)obj).Value == Value;
+            return (obj as StringCacheKey)?.Key == Key;
         }
 
         public override int GetHashCode()
         {
-            return Value.GetHashCode();
+            return Key?.GetHashCode() ?? 0;
         }
     }
 }
