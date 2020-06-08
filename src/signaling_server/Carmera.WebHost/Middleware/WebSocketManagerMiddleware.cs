@@ -2,6 +2,7 @@ using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Carmera.WebHost.Services.SocketsHandling;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -11,10 +12,12 @@ namespace Carmera.WebHost.Middleware
     {
 
         private ILogger<WebSocketManagerMiddleware> _log;
+        private IHandleWebSocket _socketsHandler;
 
-        public WebSocketManagerMiddleware(ILogger<WebSocketManagerMiddleware> log)
+        public WebSocketManagerMiddleware(ILogger<WebSocketManagerMiddleware> log, IHandleWebSocket socketsHandler)
         {
-            _log = log;
+            _log = log ?? throw new ArgumentNullException(nameof(_log));
+            _socketsHandler = socketsHandler ?? throw new ArgumentNullException(nameof(socketsHandler));
         }
 
         public async Task Invoke(HttpContext context, Func<Task> next)
@@ -23,9 +26,8 @@ namespace Carmera.WebHost.Middleware
 
             if (context.WebSockets.IsWebSocketRequest)
             {
-                WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
                 _log.LogDebug("Its a socket");
-                await Echo(context, webSocket);
+                await _socketsHandler.CatchWebSocket(context);
             }
             else
             {

@@ -13,9 +13,14 @@ export class SocketService {
   private socket: WebSocket;
 
   public initSocket(): void {
-    this.socket = new WebSocket(`ws://${SERVER_URL}`);
+    this.socket = new WebSocket(`ws://${SERVER_URL}/ws`);
     this.socket.onopen = function (event) {
-      this.send("Connecting!");
+      var checkoutDTO = {
+        kind: "checkout",
+      };
+
+      var DTOasString = JSON.stringify(checkoutDTO);
+      this.send(DTOasString);
     };
   }
 
@@ -44,5 +49,9 @@ export class SocketService {
   public closeSocket() {
     console.log(`Closing connection :(`);
     this.socket.close(1000, `Standard closure`);
+  }
+
+  private checkout():void{
+    
   }
 }

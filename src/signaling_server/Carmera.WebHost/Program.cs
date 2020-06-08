@@ -21,7 +21,7 @@ namespace Carmera.WebHost
             .ConfigureLogging(logging =>
             {
                 logging.ClearProviders();
-
+                
                 logging.AddConsole();
                 logging.AddDebug();
                 logging.AddEventLog();

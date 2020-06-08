@@ -36,7 +36,7 @@ export class CommsComponent implements OnInit {
   public doCheckout() {
     var msg = {
       from: this.user,
-      content: `checkout!`,
+      content: `checkout`,
     };
 
     var msgAsText = JSON.stringify(msg);
@@ -61,25 +61,4 @@ export class CommsComponent implements OnInit {
   public closeWS() {
     this.socketService.closeSocket();
   }
-
-  // public sendNotification(params: any, action: Action): void {
-  //   let message: Message;
-
-  //   if (action === Action.JOINED) {
-  //     message = {
-  //       from: this.user,
-  //       action,
-  //     };
-  //   } else if (action === Action.RENAME) {
-  //     message = {
-  //       action,
-  //       content: {
-  //         username: this.user.name,
-  //         previousUsername: params.previousUsername,
-  //       },
-  //     };
-  //   }
-
-  //   this.socketService.send(message);
-  // }
 }

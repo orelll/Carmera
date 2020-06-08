@@ -4,7 +4,7 @@
     {
         public enum RequestType
         {
-            Unset,
+            Unknown,
             CheckIn,
             CheckOut,
             GetPeer,

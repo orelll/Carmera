@@ -10,6 +10,7 @@ using Carmera.Application.Services.RequestHandling.Factory;
 using Carmera.Common;
 using Carmera.WebHost.Services.DTOProduction;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using static Carmera.Application.Services.RequestHandling.RequestsTypes;
@@ -23,32 +24,29 @@ namespace Carmera.WebHost.Services.SocketsHandling
         private IRequestFactory _requestFactory;
         private IRequestHandlingService _requestHandlingService;
         private IPAddress[] _localIPs = Dns.GetHostAddresses(Dns.GetHostName());
+        private readonly ILogger<WebSocketHandler> _logger;
 
-        public WebSocketHandler(IDTOFactory dtoFactory, IRequestFactory requestFactory, IRequestHandlingService requestHandlingService)
+        public WebSocketHandler(IDTOFactory dtoFactory, IRequestFactory requestFactory, IRequestHandlingService requestHandlingService, ILogger<WebSocketHandler> logger)
         {
             _dtoFactory = dtoFactory ?? throw new ArgumentNullException(nameof(dtoFactory));
             _requestFactory = requestFactory ?? throw new ArgumentNullException(nameof(requestFactory));
             _requestHandlingService = requestHandlingService ?? throw new ArgumentNullException(nameof(requestHandlingService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(ILogger<WebSocketHandler>));
         }
 
-        public async Task CatchWebSocket(HttpContext context, Func<Task> next)
+        public async Task CatchWebSocket(HttpContext context)
         {
             if (context.Request.Path == "/ws")
             {
-                if (context.WebSockets.IsWebSocketRequest)
-                {
-                    WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
 
-                    await HandleRequest(context, webSocket);
-                }
-                else
-                {
-                    context.Response.StatusCode = 400;
-                }
+                WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
+
+                await HandleRequest(context, webSocket);
+
             }
             else
             {
-                await next();
+
             }
         }
 
@@ -64,13 +62,13 @@ namespace Carmera.WebHost.Services.SocketsHandling
             }
 
             await webSocket.SendAsync(new ArraySegment<byte>(_okMessage, 0, _okMessage.Length), result.MessageType, true, CancellationToken.None);
-            
+
             var payload = PrepareIncomingMessage(buffer);
             try
             {
                 var requestKind = GetRequestKind(payload);
 
-                if (requestKind > RequestType.Unset)
+                if (requestKind > RequestType.Unknown)
                 {
                     var peerInfo = PreparePeerInfo(context, payload);
                     var dto = _dtoFactory.ObtainDTO(requestKind, peerInfo);
@@ -86,16 +84,16 @@ namespace Carmera.WebHost.Services.SocketsHandling
                 else
                 {
                     context.Response.StatusCode = 400;
-                    var responseAsBytes = Tools.StringToUTF8ByteArray("hujopwe zapytanie");
+                    var responseAsBytes = Tools.StringToUTF8ByteArray("hujowe zapytanie");
                     await webSocket.SendAsync(new ArraySegment<byte>(responseAsBytes, 0, responseAsBytes.Length), result.MessageType, true, CancellationToken.None);
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                var responseAsBytes = Tools.StringToUTF8ByteArray("zjebało się!");
+                _logger.LogError(ex, "Generic error during socket request handling.", new { payload = payload });
+                var responseAsBytes = Tools.StringToUTF8ByteArray("Sorka, zjebało się xD");
                 await webSocket.SendAsync(new ArraySegment<byte>(responseAsBytes, 0, responseAsBytes.Length), result.MessageType, true, CancellationToken.None);
             }
-            //await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "dupalala", new CancellationToken());
         }
 
         private string PrepareIncomingMessage(byte[] buffer)
@@ -109,16 +107,26 @@ namespace Carmera.WebHost.Services.SocketsHandling
 
         private RequestType GetRequestKind(string message)
         {
-            var requetType = RequestType.Unset;
-            var obj = (JObject)JsonConvert.DeserializeObject(message);
-            var found = obj.GetValue("kind").ToString();
-
-            if (!string.IsNullOrEmpty(found))
+            try
             {
-                requetType = ((RequestType[])Enum.GetValues(typeof(RequestType))).FirstOrDefault(type => type.ToString().ToLower() == found.ToLower());
-            }
+                var obj = (JObject)JsonConvert.DeserializeObject(message);
+                var found = obj.GetValue("kind").ToString();
 
-            return requetType;
+                if (!string.IsNullOrEmpty(found))
+                {
+                    return ((RequestType[])Enum.GetValues(typeof(RequestType))).FirstOrDefault(type => type.ToString().ToLower() == found.ToLower());
+                }
+                else
+                {
+                    return RequestType.Unknown;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception duiring obtaining request kind.", new { message = message });
+                return RequestType.Unknown;
+            }
         }
 
         private PeerInfo PreparePeerInfo(HttpContext context, string payload)
