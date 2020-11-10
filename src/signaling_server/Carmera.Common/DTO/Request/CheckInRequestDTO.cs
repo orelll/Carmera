@@ -2,5 +2,6 @@
 {
     public class CheckInRequestDTO : RequestDTOBase
     {
+        public string Offer { get; set; }
     }
 }

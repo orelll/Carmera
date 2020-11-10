@@ -36,7 +36,7 @@ namespace Carmera.Application.Services.RequestHandling.Factory
             return null;
         }
 
-        private Request ConvertToCheckInCommand(CheckInRequestDTO dto) => new CheckInCommand(dto.PeerName, dto.Address, dto.Port);
+        private Request ConvertToCheckInCommand(CheckInRequestDTO dto) => new CheckInCommand(dto.Offer, dto.PeerName, dto.Address, dto.Port);
 
         private Request ConvertToCheckOutCommand(CheckOutRequestDTO dto) => new CheckOutCommand(dto.PeerName, dto.Address, dto.Port);
 

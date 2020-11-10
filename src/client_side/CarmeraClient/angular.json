@@ -119,6 +119,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "CarmeraClient"
+    }
+  },
+  "defaultProject": "CarmeraClient",
+  "cli": {
+    "analytics": false
+  }
 }

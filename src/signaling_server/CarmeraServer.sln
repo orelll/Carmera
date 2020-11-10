@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Carmera.WebHost", "Carmera.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Carmera.Common", "Carmera.Common\Carmera.Common.csproj", "{5969919E-C6F3-48A9-9736-9FDC57FD3874}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carmera.Application", "Carmera.Application\Carmera.Application.csproj", "{524C8A24-80D8-469F-BC1C-C3560F9F8039}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Carmera.Application", "Carmera.Application\Carmera.Application.csproj", "{524C8A24-80D8-469F-BC1C-C3560F9F8039}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carmera.HttpHost", "Carmera.HttpHost\Carmera.HttpHost.csproj", "{6EAB380B-FEC5-4F9F-A8EC-AAF150CCACEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{524C8A24-80D8-469F-BC1C-C3560F9F8039}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{524C8A24-80D8-469F-BC1C-C3560F9F8039}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{524C8A24-80D8-469F-BC1C-C3560F9F8039}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EAB380B-FEC5-4F9F-A8EC-AAF150CCACEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EAB380B-FEC5-4F9F-A8EC-AAF150CCACEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EAB380B-FEC5-4F9F-A8EC-AAF150CCACEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EAB380B-FEC5-4F9F-A8EC-AAF150CCACEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

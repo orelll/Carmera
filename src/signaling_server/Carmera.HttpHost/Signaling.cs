@@ -1,8 +1,8 @@
 using System;
 
-namespace Carmera.WebHost
+namespace Carmera.HttpHost
 {
-    public class WeatherForecast
+    public class Signaling
     {
         public DateTime Date { get; set; }
 
