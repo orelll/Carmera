@@ -24,10 +24,6 @@ export class SignalingComponent implements OnInit {
   }
 
   doRegistration(): void {
-    this.socketingService.onMessage().subscribe((message : any) => {
-      console.log(message);
-    });
-
     this.socketingService.send(this.localOffer);
   }
 
