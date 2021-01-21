@@ -119,6 +119,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "carmera-server"
+    }
+  },
+  "defaultProject": "carmera-server",
+  "cli": {
+    "analytics": false
+  }
 }
