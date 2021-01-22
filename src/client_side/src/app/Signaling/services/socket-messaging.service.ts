@@ -1,13 +1,13 @@
+import { RequestTypes } from 'src/app/common/requestTypesEnum';
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { RequestTypes } from '../../common/requestTypesEnum';
+import { Observable, Subject } from 'rxjs';
 
 // check https://rxjs-dev.firebaseapp.com/api/webSocket/webSocket
 @Injectable({
   providedIn: 'root',
 })
-export class SocketCommunicationService {
+export class SocketMessagingService {
   private subject: WebSocketSubject<unknown>;
   private ws_port = 44305;
   private ws_is_secured = true;
@@ -22,6 +22,10 @@ export class SocketCommunicationService {
   constructor() {
     this.offerResponseSubject = new Subject<RTCSessionDescriptionInit>();
     this.offerResponseObservable = this.offerResponseSubject.asObservable();
+  }
+
+  public sendHello(): void {
+    this.sendText('hello from the other side', RequestTypes.txt);
   }
 
   public send(
@@ -65,16 +69,21 @@ export class SocketCommunicationService {
     var responseType = JO['ResponseType'];
 
     switch (responseType) {
-      case 'ServerOfferResponse':
-        console.log(`response type: ServerOfferResponse`);
-        var message = JO['Message'];
-        console.log(`ServerOfferResponse message: ${message}`);
+      case 'ClientOfferResponse':
+        var serverExists = JO['ServerAvailable'];
+        if (serverExists) {
+          var jsonedOffer = serverExists == true ? JO['ServerOffer'] : '';
+          const offer: RTCSessionDescriptionInit = JSON.parse(jsonedOffer);
+          this.offerResponseSubject.next(offer);
+        }
         break;
-      case 'Answer':
-        console.log(`response type: answer`);
-        var jsonedOffer = msg['AnswerOffer'];
-        const offer: RTCSessionDescriptionInit = JSON.parse(jsonedOffer);
-        this.offerResponseSubject.next(offer);
+      case 'ServerAvailable':
+        var serverExists = JO['ServerAvailable'];
+        if (serverExists) {
+          var jsonedOffer = serverExists == true ? JO['ServerOffer'] : '';
+          const offer: RTCSessionDescriptionInit = JSON.parse(jsonedOffer);
+          this.offerResponseSubject.next(offer);
+        }
         break;
     }
   }

@@ -1,4 +1,5 @@
 export enum RequestTypes {
   txt = 'txt',
-  offer = 'clientOffer'
+  offer = 'clientOffer',
+  answer = 'answer'
 }

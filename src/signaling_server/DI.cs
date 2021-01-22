@@ -18,8 +18,10 @@ namespace signaling_server
             services.AddTransient<IRequestHandler<ClientOfferRequest, ClientOfferResponse>, ClientOfferRequestHandler>();
             services.AddTransient<IRequestHandler<ServerOfferRequest, ServerOfferResponse>, ServerOfferRequestHandler>();
             services.AddTransient<IRequestHandler<GetServerRequest, GetServerResponse>, GetServerRequestHandler>();
+            services.AddTransient<IRequestHandler<AnswerRequest, AnswerResponse>, AnswerRequestHandler>();
             services.AddTransient<IRequestHandlerFactory, RequestHandlerFactory>();
             services.AddSingleton<ISocketRepository, SocketRepository>();
+            services.AddSingleton<ISocketNotifier, SocketNotifier>();
         }
     }
 }

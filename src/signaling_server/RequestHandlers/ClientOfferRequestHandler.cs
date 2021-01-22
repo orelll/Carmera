@@ -14,13 +14,13 @@ namespace signaling_server.RequestHandlers
 
         public ClientOfferResponse Handle(ClientOfferRequest request)
         {
-            var socketData = new SocketData { Address = request.Address, Offer = request.Offer, SocketKind = SocketKind.client };
+            var socketData = new SocketData(request.Socket, SocketKind.client, request.Address, request.Offer);
             _socketRepository.OnSocketConnected(socketData);
 
             var serverAvailable = _socketRepository.ContainsServer();
             var serverOffer = _socketRepository.GetServer()?.Offer ?? string.Empty;
 
-            return  new ClientOfferResponse { ServerAvailable = serverAvailable, ServerOffer = serverOffer };
+            return new ClientOfferResponse(serverAvailable, serverOffer);
         }
     }
 }

@@ -3,6 +3,7 @@ using signaling_server.Converters;
 using signaling_server.RequestHandlers;
 using signaling_server.Requests;
 using System.Net;
+using System.Net.WebSockets;
 
 namespace signaling_server.MessageProcessing
 {
@@ -17,7 +18,7 @@ namespace signaling_server.MessageProcessing
             _handlersFactory = handlersFactory;
         }
 
-        public object ProcessRequest(byte[] requestBytes, IPAddress address)
+        public object ProcessRequest(byte[] requestBytes, IPAddress address, WebSocket socket)
         {
             var requestAsString = _toStringConverter.Convert(requestBytes);
             var json = JObject.Parse(requestAsString);
@@ -27,18 +28,23 @@ namespace signaling_server.MessageProcessing
             switch (type)
             {
                 case "clientOffer":
-                    var clientOfferRequest = new ClientOfferRequest(address, payload);
+                    var clientOfferRequest = new ClientOfferRequest(address, socket, payload);
                     var clientOfferRequestHandler = _handlersFactory.Create(clientOfferRequest, clientOfferRequest.GetResponseType());
                    
                     return clientOfferRequestHandler.Handle(clientOfferRequest);                
                 case "serverOffer":
-                    var serverRequest = new ServerOfferRequest(address, payload);
+                    var serverRequest = new ServerOfferRequest(address, socket, payload);
                     var serverRequestHandler = _handlersFactory.Create(serverRequest, serverRequest.GetResponseType());
                    
-                    return serverRequestHandler.Handle(serverRequest);
+                    return serverRequestHandler.Handle(serverRequest);                
+                case "answer":
+                    var answerRequest = new AnswerRequest(address, socket, payload);
+                    var answerRequestHandler = _handlersFactory.Create(answerRequest, answerRequest.GetResponseType());
+                   
+                    return answerRequestHandler.Handle(answerRequest);
                 case "txt":
                 default:
-                    var  txtRequest = new TxtRequest(address, payload);
+                    var  txtRequest = new TxtRequest(address, socket, payload);
                     var txtRequestHandler = _handlersFactory.Create(txtRequest, txtRequest.GetResponseType());
                     return txtRequestHandler.Handle(txtRequest);
             }

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { RequestTypes } from '../common/requestTypesEnum';
 import { SocketCommunicationService } from './services/socket-communication.service';
 import { SocketerService } from './services/socketer.service';
 
@@ -9,14 +10,19 @@ import { SocketerService } from './services/socketer.service';
 })
 export class SocketHandlingComponent implements OnInit {
   constructor(
-    private socketCommunicationService: SocketCommunicationService,
+    private socketMessagingService: SocketCommunicationService,
     private socketer: SocketerService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.socketMessagingService.onOffer().subscribe(async (offer) => {
+      console.log(`Received offer: \n${JSON.stringify(offer)}`);
+      var answer = await this.socketer.setPeerOffer(offer);
+    });
+  }
 
   async registerApp(): Promise<void> {
     const offer = await this.socketer.createOffer();
-    this.socketCommunicationService.send(offer);
+    this.socketMessagingService.send(offer, RequestTypes.serverOffer);
   }
 }

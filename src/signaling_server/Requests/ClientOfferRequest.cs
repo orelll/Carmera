@@ -1,6 +1,7 @@
 ﻿
 using signaling_server.Responses;
 using System.Net;
+using System.Net.WebSockets;
 
 namespace signaling_server.Requests
 {
@@ -8,6 +9,6 @@ namespace signaling_server.Requests
     {
         public string Offer { get; set; }
 
-        public ClientOfferRequest(IPAddress address, string offer) : base(address) => Offer = offer;
+        public ClientOfferRequest(IPAddress address, WebSocket socket, string offer) : base(address, socket) => Offer = offer;
     }
 }

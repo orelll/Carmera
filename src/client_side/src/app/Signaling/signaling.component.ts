@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { SocketingService } from '../common/services/socketing.service';
+import { RequestTypes } from '../common/requestTypesEnum';
+import { SocketMessagingService } from './services/socket-messaging.service';
+import { SocketerService } from './services/socketer.service';
 
 @Component({
   selector: 'app-signaling',
@@ -8,23 +10,20 @@ import { SocketingService } from '../common/services/socketing.service';
 })
 export class SignalingComponent implements OnInit {
 
-  localOffer;
 
-  constructor(private socketingService: SocketingService) { }
+  constructor(private socketMessagingService: SocketMessagingService,
+    private socketer: SocketerService) { }
 
   ngOnInit(): void {
-    this.prepareOffer();
+    this.socketMessagingService.onOffer().subscribe(async (offer) => {
+      console.log(`Received offer: \n${JSON.stringify(offer)}`);
+      var answer = await this.socketer.setPeerOffer(offer);
+      this.socketMessagingService.send(answer, RequestTypes.answer);
+    });
   }
 
-  async prepareOffer(): Promise<void> {
-    const configuration = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }
-    const peerConnection = new RTCPeerConnection(configuration);
-
-    this.localOffer = await peerConnection.createOffer();;
-  }
-
-  doRegistration(): void {
-    this.socketingService.send(this.localOffer);
+  async doRegistration(): Promise<void> {
+    this.socketMessagingService.send(await this.socketer.createOffer(), RequestTypes.offer);
   }
 
 }

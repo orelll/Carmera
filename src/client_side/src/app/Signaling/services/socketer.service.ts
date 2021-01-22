@@ -4,7 +4,9 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class SocketerService {
-  private configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+  private configuration = {
+    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+  };
   private peerConnection: RTCPeerConnection;
   private localOffer: RTCSessionDescriptionInit;
   private peerOffer: RTCSessionDescriptionInit;

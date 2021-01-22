@@ -1,6 +1,7 @@
 ﻿
 using signaling_server.Responses;
 using System.Net;
+using System.Net.WebSockets;
 
 namespace signaling_server.Requests
 {
@@ -8,6 +9,6 @@ namespace signaling_server.Requests
     {
         public string Message { get; set; }
 
-        public TxtRequest(IPAddress address, string message) : base(address) => Message = message;
+        public TxtRequest(IPAddress address, WebSocket socket, string message) : base(address, socket) => Message = message;
     }
 }

@@ -1,11 +1,8 @@
 ﻿using Newtonsoft.Json;
 using signaling_server.MessageProcessing;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,11 +11,13 @@ namespace signaling_server.Socketing
     public class SocketHandler
     {
         private readonly IRequestProcessor _requestProcessor;
+        private readonly ISocketNotifier _notifier;
         
 
-        public SocketHandler(IRequestProcessor requestProcessor)
+        public SocketHandler(IRequestProcessor requestProcessor, ISocketNotifier notifier)
         {
             _requestProcessor = requestProcessor;
+            _notifier = notifier;
         }
 
         public async Task ReceiveSocket(WebSocket socket, IPAddress address)
@@ -39,10 +38,10 @@ namespace signaling_server.Socketing
         {
             if (result.MessageType == WebSocketMessageType.Text)
             {
-                var response =  _requestProcessor.ProcessRequest(buffer, address); 
+                var response =  _requestProcessor.ProcessRequest(buffer, address, socket); 
                 var serialized =  JsonConvert.SerializeObject(response);
-                await SendMessageAsync(socket, serialized);
-                await socket.CloseAsync( WebSocketCloseStatus.NormalClosure, "processed", CancellationToken.None);
+                await _notifier.SendMessageAsync(socket, serialized);
+               
                 return;
             }
 
@@ -52,17 +51,5 @@ namespace signaling_server.Socketing
             }
         }
 
-        private async Task SendMessageAsync(WebSocket socket, string message)
-        {
-            if (socket.State != WebSocketState.Open)
-                return;
-
-            await socket.SendAsync(buffer: new ArraySegment<byte>(array: Encoding.ASCII.GetBytes(message),
-                                                                    offset: 0,
-                                                                    count: message.Length),
-                                    messageType: WebSocketMessageType.Text,
-                                    endOfMessage: true,
-                                    cancellationToken: CancellationToken.None);
-        }
     }
 }

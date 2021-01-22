@@ -17,7 +17,7 @@ namespace signaling_server.RequestHandlers
             var serverAvailable = _socketRepository.ContainsServer();
             var serverOffer = _socketRepository.GetServer()?.Offer ?? string.Empty;
 
-            return new GetServerResponse { ServerAvailable = serverAvailable, ServerOffer = serverOffer };
+            return new GetServerResponse(serverAvailable, serverOffer);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace signaling_server.RequestHandlers
     {
         public TxtResponse Handle(TxtRequest request)
         {
-            return new TxtResponse { Message = "processed" };
+            return new TxtResponse("Processed");
         }
     }
 }
