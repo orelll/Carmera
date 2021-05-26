@@ -1,5 +1,5 @@
 import { RequestTypes } from 'src/app/common/requestTypesEnum';
-import { Injectable } from '@angular/core';
+import { ElementRef, Injectable } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { Observable, Subject } from 'rxjs';
 
@@ -16,12 +16,57 @@ export class SocketMessagingService {
     ? `wss://${this.ws_host}:${this.ws_port}`
     : `ws://${this.ws_host}:${this.ws_port}`;
 
-  private offerResponseSubject: Subject<RTCSessionDescriptionInit>;
-  offerResponseObservable: Observable<RTCSessionDescriptionInit>;
+  private offerResponseSubject: Subject<RTCSessionDescription>;
+  offerResponseObservable: Observable<RTCSessionDescription>;
+
+  private configuration = {
+    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+  };
+  private peerConnection: RTCPeerConnection;
+  private localOffer: RTCSessionDescriptionInit;
+  private peerOffer: RTCSessionDescriptionInit;
+
+  private remoteStream = new MediaStream();
+  private remoteVideo: ElementRef;
 
   constructor() {
-    this.offerResponseSubject = new Subject<RTCSessionDescriptionInit>();
+    this.offerResponseSubject = new Subject<RTCSessionDescription>();
     this.offerResponseObservable = this.offerResponseSubject.asObservable();
+    this.peerConnection = new RTCPeerConnection(this.configuration);
+    
+  }
+
+  setVideoElement(video: ElementRef):void{
+    this.remoteVideo.nativeElement = video;
+    this.remoteVideo.nativeElement.srcObject = this.remoteStream;
+  }
+
+  async createOffer(): Promise<RTCSessionDescriptionInit> {
+    this.peerConnection.addEventListener('track', async (event) => {
+      this.remoteStream.addTrack(event.track);
+    });
+    return await this.peerConnection.createOffer().then((offer) => {
+      this.setLocalOffer(offer);
+      return offer;
+    });
+  }
+
+  async setPeerOffer(
+    peerOffer: RTCSessionDescriptionInit
+  ): Promise<RTCSessionDescriptionInit> {
+    this.peerOffer = peerOffer;
+
+    // this.peerConnection.setRemoteDescription(
+    //   new RTCSessionDescription(peerOffer)
+    // );
+    this.peerConnection.setRemoteDescription(peerOffer);
+    const answer = await this.peerConnection.createAnswer();
+    await this.peerConnection.setLocalDescription(answer);
+    return answer;
+  }
+
+  private setLocalOffer(offer: RTCSessionDescriptionInit): void {
+    this.localOffer = offer;
   }
 
   public sendHello(): void {
@@ -73,7 +118,7 @@ export class SocketMessagingService {
         var serverExists = JO['ServerAvailable'];
         if (serverExists) {
           var jsonedOffer = serverExists == true ? JO['ServerOffer'] : '';
-          const offer: RTCSessionDescriptionInit = JSON.parse(jsonedOffer);
+          const offer: RTCSessionDescription =  new RTCSessionDescription(JSON.parse(jsonedOffer));
           this.offerResponseSubject.next(offer);
         }
         break;
@@ -81,7 +126,7 @@ export class SocketMessagingService {
         var serverExists = JO['ServerAvailable'];
         if (serverExists) {
           var jsonedOffer = serverExists == true ? JO['ServerOffer'] : '';
-          const offer: RTCSessionDescriptionInit = JSON.parse(jsonedOffer);
+          const offer: RTCSessionDescription = new RTCSessionDescription( JSON.parse(jsonedOffer));
           this.offerResponseSubject.next(offer);
         }
         break;

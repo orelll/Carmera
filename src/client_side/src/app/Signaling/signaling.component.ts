@@ -1,29 +1,38 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { RequestTypes } from '../common/requestTypesEnum';
 import { SocketMessagingService } from './services/socket-messaging.service';
-import { SocketerService } from './services/socketer.service';
 
 @Component({
   selector: 'app-signaling',
   templateUrl: './signaling.component.html',
-  styleUrls: ['./signaling.component.css']
+  styleUrls: ['./signaling.component.css'],
 })
-export class SignalingComponent implements OnInit {
+export class SignalingComponent implements OnInit, AfterViewInit {
+  @ViewChild('remoteVideo') video: ElementRef;
 
-
-  constructor(private socketMessagingService: SocketMessagingService,
-    private socketer: SocketerService) { }
+  constructor(private socketMessagingService: SocketMessagingService) {}
+  ngAfterViewInit(): void {
+    this.socketMessagingService.setVideoElement(this.video);
+  }
 
   ngOnInit(): void {
     this.socketMessagingService.onOffer().subscribe(async (offer) => {
       console.log(`Received offer: \n${JSON.stringify(offer)}`);
-      var answer = await this.socketer.setPeerOffer(offer);
+      var answer = await this.socketMessagingService.setPeerOffer(offer);
       this.socketMessagingService.send(answer, RequestTypes.answer);
     });
   }
 
   async doRegistration(): Promise<void> {
-    this.socketMessagingService.send(await this.socketer.createOffer(), RequestTypes.offer);
+    this.socketMessagingService.send(
+      await this.socketMessagingService.createOffer(),
+      RequestTypes.offer
+    );
   }
-
 }

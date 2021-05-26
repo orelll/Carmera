@@ -16,33 +16,76 @@ export class SocketCommunicationService {
     ? `wss://${this.ws_host}:${this.ws_port}`
     : `ws://${this.ws_host}:${this.ws_port}`;
 
-  private offerResponseSubject: Subject<RTCSessionDescriptionInit>;
-  offerResponseObservable: Observable<RTCSessionDescriptionInit>;
+  private offerResponseSubject: Subject<RTCSessionDescription>;
+  offerResponseObservable: Observable<RTCSessionDescription>;
+
+  private configuration = {
+    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+  };
+  private peerConnection: RTCPeerConnection;
+  private localOffer: RTCSessionDescriptionInit;
+  private peerOffer: RTCSessionDescriptionInit;
+
+  private mediaStream: MediaStream;
 
   constructor() {
-    this.offerResponseSubject = new Subject<RTCSessionDescriptionInit>();
+    this.offerResponseSubject = new Subject<RTCSessionDescription>();
     this.offerResponseObservable = this.offerResponseSubject.asObservable();
+    this.peerConnection = new RTCPeerConnection(this.configuration);
+  }
+
+  async createOffer(): Promise<RTCSessionDescriptionInit> {
+    this.mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+
+    this.mediaStream.getTracks().forEach((track) => {
+      this.peerConnection.addTrack(track, this.mediaStream);
+    });
+
+    return await this.peerConnection.createOffer().then((offer) => {
+      this.setLocalOffer(offer);
+      return offer;
+    });
+  }
+
+  async setPeerOffer(
+    peerOffer: RTCSessionDescriptionInit
+  ): Promise<RTCSessionDescriptionInit> {
+    this.peerOffer = peerOffer;
+
+    this.peerConnection.setRemoteDescription(peerOffer);
+    const answer = await this.peerConnection.createAnswer();
+    await this.peerConnection.setLocalDescription(answer);
+    return answer;
+  }
+
+  private setLocalOffer(offer: RTCSessionDescriptionInit): void {
+    this.localOffer = offer;
   }
 
   public send(
     offer: RTCSessionDescriptionInit,
     requestType: RequestTypes
   ): void {
-    const stringedOffer = JSON.stringify(offer);
-    this.sendText(stringedOffer, requestType);
+    // const stringedOffer = JSON.stringify(offer);
+    this.sendText(offer, requestType);
   }
 
   public onOffer(): Observable<RTCSessionDescriptionInit> {
     return this.offerResponseObservable;
   }
 
-  private sendText(text: string, type: RequestTypes): void {
+  private sendText(data: any, type: RequestTypes): void {
     this.initSocket();
 
     const message = {
       type: type,
-      payload: text,
+      payload: data,
     };
+
+    var stringedMessage = JSON.stringify(message);
 
     this.subject.subscribe(
       (msg) => this.handleOfferSent(msg),
@@ -73,7 +116,9 @@ export class SocketCommunicationService {
       case 'Answer':
         console.log(`response type: answer`);
         var jsonedOffer = msg['AnswerOffer'];
-        const offer: RTCSessionDescriptionInit = JSON.parse(jsonedOffer);
+        const offer: RTCSessionDescription = new RTCSessionDescription(
+          JSON.parse(jsonedOffer)
+        );
         this.offerResponseSubject.next(offer);
         break;
     }

@@ -21,34 +21,44 @@ namespace signaling_server.MessageProcessing
         public object ProcessRequest(byte[] requestBytes, IPAddress address, WebSocket socket)
         {
             var requestAsString = _toStringConverter.Convert(requestBytes);
-            var json = JObject.Parse(requestAsString);
-            var type = json["type"].ToString();
-            var payload = json["payload"].ToString();
 
-            switch (type)
+            try
             {
-                case "clientOffer":
-                    var clientOfferRequest = new ClientOfferRequest(address, socket, payload);
-                    var clientOfferRequestHandler = _handlersFactory.Create(clientOfferRequest, clientOfferRequest.GetResponseType());
-                   
-                    return clientOfferRequestHandler.Handle(clientOfferRequest);                
-                case "serverOffer":
-                    var serverRequest = new ServerOfferRequest(address, socket, payload);
-                    var serverRequestHandler = _handlersFactory.Create(serverRequest, serverRequest.GetResponseType());
-                   
-                    return serverRequestHandler.Handle(serverRequest);                
-                case "answer":
-                    var answerRequest = new AnswerRequest(address, socket, payload);
-                    var answerRequestHandler = _handlersFactory.Create(answerRequest, answerRequest.GetResponseType());
-                   
-                    return answerRequestHandler.Handle(answerRequest);
-                case "txt":
-                default:
-                    var  txtRequest = new TxtRequest(address, socket, payload);
-                    var txtRequestHandler = _handlersFactory.Create(txtRequest, txtRequest.GetResponseType());
-                    return txtRequestHandler.Handle(txtRequest);
+                var json = JObject.Parse(requestAsString);
+                var type = json["type"].ToString();
+                var payload = json["payload"].ToString();
+
+
+
+                switch (type)
+                {
+                    case "clientOffer":
+                        var clientOfferRequest = new ClientOfferRequest(address, socket, payload);
+                        var clientOfferRequestHandler = _handlersFactory.Create(clientOfferRequest, clientOfferRequest.GetResponseType());
+
+                        return clientOfferRequestHandler.Handle(clientOfferRequest);
+                    case "serverOffer":
+                        var serverRequest = new ServerOfferRequest(address, socket, payload);
+                        var serverRequestHandler = _handlersFactory.Create(serverRequest, serverRequest.GetResponseType());
+
+                        return serverRequestHandler.Handle(serverRequest);
+                    case "answer":
+                        var answerRequest = new AnswerRequest(address, socket, payload);
+                        var answerRequestHandler = _handlersFactory.Create(answerRequest, answerRequest.GetResponseType());
+
+                        return answerRequestHandler.Handle(answerRequest);
+                    case "txt":
+                    default:
+                        var txtRequest = new TxtRequest(address, socket, payload);
+                        var txtRequestHandler = _handlersFactory.Create(txtRequest, txtRequest.GetResponseType());
+                        return txtRequestHandler.Handle(txtRequest);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                return $@"An error {ex} occured.";
             }
         }
-        
+
     }
 }

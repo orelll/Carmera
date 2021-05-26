@@ -27,7 +27,7 @@ namespace signaling_server.RequestHandlers
 
         private void NotifyAllClients(SocketData server) {
 
-            foreach (var client in _socketRepository.GetAllClients().Where(c => !c.Notified))
+            foreach (var client in _socketRepository.GetAllClients())
             {
                 _notifier.SendServerAvailable(client, server.Offer);
                 client.Notified = true;

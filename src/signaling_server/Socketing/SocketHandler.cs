@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using signaling_server.MessageProcessing;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.WebSockets;
 using System.Threading;
@@ -12,7 +13,7 @@ namespace signaling_server.Socketing
     {
         private readonly IRequestProcessor _requestProcessor;
         private readonly ISocketNotifier _notifier;
-        
+
 
         public SocketHandler(IRequestProcessor requestProcessor, ISocketNotifier notifier)
         {
@@ -22,15 +23,28 @@ namespace signaling_server.Socketing
 
         public async Task ReceiveSocket(WebSocket socket, IPAddress address)
         {
-            
+
             var buffer = new byte[1024 * 4];
+
+            var wholeList = new List<byte>();
 
             while (socket.State == WebSocketState.Open)
             {
-                var result = await socket.ReceiveAsync(buffer: new ArraySegment<byte>(buffer),
-                                                        cancellationToken: CancellationToken.None);
+                WebSocketReceiveResult result = null;
 
-                await HandleSocket(socket, result, buffer, address);
+                do
+                {
+                    result = await socket.ReceiveAsync(buffer: new ArraySegment<byte>(buffer),
+                                                            cancellationToken: CancellationToken.None);
+
+                    wholeList.AddRange(buffer);
+                    buffer = new byte[1024 * 4];
+                }
+                while (!result.EndOfMessage);
+
+
+
+                await HandleSocket(socket, result, wholeList.ToArray(), address);
             }
         }
 
@@ -38,10 +52,10 @@ namespace signaling_server.Socketing
         {
             if (result.MessageType == WebSocketMessageType.Text)
             {
-                var response =  _requestProcessor.ProcessRequest(buffer, address, socket); 
-                var serialized =  JsonConvert.SerializeObject(response);
+                var response = _requestProcessor.ProcessRequest(buffer, address, socket);
+                var serialized = JsonConvert.SerializeObject(response);
                 await _notifier.SendMessageAsync(socket, serialized);
-               
+
                 return;
             }
 
