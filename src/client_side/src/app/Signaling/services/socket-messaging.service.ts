@@ -60,12 +60,11 @@ export class SocketMessagingService {
     //   new RTCSessionDescription(peerOffer)
     // );
     this.peerConnection.setRemoteDescription(peerOffer);
-    const answer = await this.peerConnection.createAnswer();
-    await this.peerConnection.setLocalDescription(answer);
-    return answer;
+    return this.peerConnection.localDescription;
   }
 
   private setLocalOffer(offer: RTCSessionDescriptionInit): void {
+    this.peerConnection.setLocalDescription(offer);
     this.localOffer = offer;
   }
 

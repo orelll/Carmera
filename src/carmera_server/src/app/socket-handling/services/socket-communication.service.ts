@@ -32,6 +32,9 @@ export class SocketCommunicationService {
     this.offerResponseSubject = new Subject<RTCSessionDescription>();
     this.offerResponseObservable = this.offerResponseSubject.asObservable();
     this.peerConnection = new RTCPeerConnection(this.configuration);
+    this.peerConnection.onconnectionstatechange = (event: any) => {
+      console.log(`state changed. ${JSON.stringify(event)}`);
+    };
   }
 
   async createOffer(): Promise<RTCSessionDescriptionInit> {
@@ -42,6 +45,13 @@ export class SocketCommunicationService {
 
     this.mediaStream.getTracks().forEach((track) => {
       this.peerConnection.addTrack(track, this.mediaStream);
+    });
+
+    this.peerConnection.addEventListener('icecandidate', (event) => {
+      if (event.candidate) {
+        // signalingChannel.send({ 'new-ice-candidate': event.candidate });
+        console.log(`new ice candidate! ${JSON.stringify(event.candidate)}`);
+      }
     });
 
     return await this.peerConnection.createOffer().then((offer) => {
@@ -55,13 +65,15 @@ export class SocketCommunicationService {
   ): Promise<RTCSessionDescriptionInit> {
     this.peerOffer = peerOffer;
 
-    this.peerConnection.setRemoteDescription(peerOffer);
-    const answer = await this.peerConnection.createAnswer();
-    await this.peerConnection.setLocalDescription(answer);
-    return answer;
+    // this.peerConnection.setRemoteDescription(peerOffer);
+    // const answer = await this.peerConnection.createAnswer();
+    if (this.peerConnection.signalingState != 'stable')
+      await this.peerConnection.setRemoteDescription(peerOffer);
+    return null;
   }
 
   private setLocalOffer(offer: RTCSessionDescriptionInit): void {
+    this.peerConnection.setLocalDescription(offer);
     this.localOffer = offer;
   }
 
@@ -104,18 +116,20 @@ export class SocketCommunicationService {
 
   private handleOfferSent(msg: any): void {
     console.log('message received: ' + JSON.stringify(msg));
+
+    if (!(msg instanceof String)) msg = JSON.stringify(msg);
     var JO = JSON.parse(msg);
     var responseType = JO['ResponseType'];
 
     switch (responseType) {
       case 'ServerOfferResponse':
         console.log(`response type: ServerOfferResponse`);
-        var message = JO['Message'];
+        var message = captureEvents['Message'];
         console.log(`ServerOfferResponse message: ${message}`);
         break;
       case 'Answer':
         console.log(`response type: answer`);
-        var jsonedOffer = msg['AnswerOffer'];
+        var jsonedOffer = JO['AnswerOffer'];
         const offer: RTCSessionDescription = new RTCSessionDescription(
           JSON.parse(jsonedOffer)
         );

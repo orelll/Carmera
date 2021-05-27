@@ -13,6 +13,8 @@ namespace signaling_server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers();
+            services.AddSwaggerGen();
             DI.DoRegistrations(services);
         }
 
@@ -25,12 +27,13 @@ namespace signaling_server
             }
 
             app.UseWebSockets();
+            app.UseSwagger();
             app.Use(async (http, next) =>
             {
                 if (http.WebSockets.IsWebSocketRequest)
                 {
                     var webSocket = await http.WebSockets.AcceptWebSocketAsync();
-                    
+
                     var socketHandler = app.ApplicationServices.GetService<SocketHandler>();
                     await socketHandler.ReceiveSocket(webSocket, http.Connection.RemoteIpAddress);
                 }
@@ -40,14 +43,22 @@ namespace signaling_server
                 }
             });
 
-            app.UseRouting();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.RoutePrefix = string.Empty;
+            });
 
+            app.UseRouting();
+            
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                endpoints.MapControllerRoute(name: "default",
+                                            pattern: "{controller=Home}/{action=Index}/{id?}");
+                //endpoints.MapGet("/", async context =>
+                //{
+                //    await context.Response.WriteAsync("Hello World!");
+                //});  
             });
         }
 

@@ -3,6 +3,7 @@ using System;
 
 namespace signaling_server.Responses
 {
+
     public abstract class ResponseBase
     {
         public string ResponseType { get; }

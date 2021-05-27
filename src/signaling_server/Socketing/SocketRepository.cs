@@ -15,9 +15,19 @@ namespace signaling_server.Socketing
 
         public bool ContainsServer() => _sockets.Any(s => s.SocketKind == SocketKind.server);
 
+
+        public IEnumerable<SocketData> GetAllRegistrations() => _sockets;
+        public void ClearAllRegistrations() => _sockets.Clear();
+
         public IEnumerable<SocketData> GetAllClients() => _sockets.Where(s => s.SocketKind == SocketKind.client);
+        public void ClearAllClients() => _sockets.RemoveAll(s => s.SocketKind == SocketKind.client);
+
 
         public SocketData GetServer() => _sockets.FirstOrDefault(s => s.SocketKind == SocketKind.server);
+
+
+        public IEnumerable<SocketData> GetAllServers() => _sockets.Where(s => s.SocketKind == SocketKind.server);
+        public void ClearAllServers() => _sockets.RemoveAll(s => s.SocketKind == SocketKind.server);
 
         public SocketData GetSocket(Guid id) => _sockets.FirstOrDefault(s => s.Id == id);
 

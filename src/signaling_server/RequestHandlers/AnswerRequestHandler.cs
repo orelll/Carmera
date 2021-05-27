@@ -16,7 +16,7 @@ namespace signaling_server.RequestHandlers
         }
 
         public AnswerResponse Handle(AnswerRequest request)
-        {
+        { 
             if (_socketRepository.ContainsServer())
             {
                 var serverSocket = _socketRepository.GetServer();

@@ -9,7 +9,16 @@ namespace signaling_server.Socketing
         void OnSocketDisconnected(Guid id);
         bool ContainsServer();
         SocketData GetServer();
+
+        IEnumerable<SocketData> GetAllServers();
+        void ClearAllServers();
+
+        IEnumerable<SocketData> GetAllRegistrations();
+        void ClearAllRegistrations();
+
         IEnumerable<SocketData> GetAllClients();
+        void ClearAllClients();
+
         SocketData GetSocket(Guid id);
     }
 }
