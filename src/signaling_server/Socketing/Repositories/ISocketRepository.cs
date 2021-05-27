@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace signaling_server.Socketing
+namespace signaling_server.Socketing.Repositories
 {
     public interface ISocketRepository
     {

@@ -5,6 +5,7 @@ using signaling_server.RequestHandlers;
 using signaling_server.Requests;
 using signaling_server.Responses;
 using signaling_server.Socketing;
+using signaling_server.Socketing.Repositories;
 
 namespace signaling_server
 {
@@ -19,8 +20,10 @@ namespace signaling_server
             services.AddTransient<IRequestHandler<ServerOfferRequest, ServerOfferResponse>, ServerOfferRequestHandler>();
             services.AddTransient<IRequestHandler<GetServerRequest, GetServerResponse>, GetServerRequestHandler>();
             services.AddTransient<IRequestHandler<AnswerRequest, AnswerResponse>, AnswerRequestHandler>();
+            services.AddTransient<IRequestHandler<NewICEAvailableRequest, NewICEAvailableResponse>, NewICEAvailableRequestHandler>();
             services.AddTransient<IRequestHandlerFactory, RequestHandlerFactory>();
             services.AddSingleton<ISocketRepository, SocketRepository>();
+            services.AddSingleton<IICERepository, ICERepository> ();
             services.AddSingleton<ISocketNotifier, SocketNotifier>();
         }
     }

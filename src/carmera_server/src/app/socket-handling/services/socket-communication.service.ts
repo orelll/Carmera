@@ -23,8 +23,6 @@ export class SocketCommunicationService {
     iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
   };
   private peerConnection: RTCPeerConnection;
-  private localOffer: RTCSessionDescriptionInit;
-  private peerOffer: RTCSessionDescriptionInit;
 
   private mediaStream: MediaStream;
 
@@ -32,9 +30,12 @@ export class SocketCommunicationService {
     this.offerResponseSubject = new Subject<RTCSessionDescription>();
     this.offerResponseObservable = this.offerResponseSubject.asObservable();
     this.peerConnection = new RTCPeerConnection(this.configuration);
-    this.peerConnection.onconnectionstatechange = (event: any) => {
-      console.log(`state changed. ${JSON.stringify(event)}`);
-    };
+    this.peerConnection.addEventListener('connectionstatechange', (event) => {
+      if (this.peerConnection.connectionState === 'connected') {
+        // Peers connected!
+        console.log(`connected!!`);
+      }
+    });
   }
 
   async createOffer(): Promise<RTCSessionDescriptionInit> {
@@ -49,8 +50,8 @@ export class SocketCommunicationService {
 
     this.peerConnection.addEventListener('icecandidate', (event) => {
       if (event.candidate) {
-        // signalingChannel.send({ 'new-ice-candidate': event.candidate });
         console.log(`new ice candidate! ${JSON.stringify(event.candidate)}`);
+        this.sendICEOffer(event.candidate);
       }
     });
 
@@ -63,10 +64,7 @@ export class SocketCommunicationService {
   async setPeerOffer(
     peerOffer: RTCSessionDescriptionInit
   ): Promise<RTCSessionDescriptionInit> {
-    this.peerOffer = peerOffer;
-
-    // this.peerConnection.setRemoteDescription(peerOffer);
-    // const answer = await this.peerConnection.createAnswer();
+    console.log(`setting remote description`);
     if (this.peerConnection.signalingState != 'stable')
       await this.peerConnection.setRemoteDescription(peerOffer);
     return null;
@@ -74,7 +72,6 @@ export class SocketCommunicationService {
 
   private setLocalOffer(offer: RTCSessionDescriptionInit): void {
     this.peerConnection.setLocalDescription(offer);
-    this.localOffer = offer;
   }
 
   public send(
@@ -83,6 +80,10 @@ export class SocketCommunicationService {
   ): void {
     // const stringedOffer = JSON.stringify(offer);
     this.sendText(offer, requestType);
+  }
+
+  public sendICEOffer(iceData: RTCIceCandidate): void {
+    this.sendText(iceData, RequestTypes.newICE);
   }
 
   public onOffer(): Observable<RTCSessionDescriptionInit> {
@@ -115,8 +116,6 @@ export class SocketCommunicationService {
   }
 
   private handleOfferSent(msg: any): void {
-    console.log('message received: ' + JSON.stringify(msg));
-
     if (!(msg instanceof String)) msg = JSON.stringify(msg);
     var JO = JSON.parse(msg);
     var responseType = JO['ResponseType'];
@@ -124,8 +123,9 @@ export class SocketCommunicationService {
     switch (responseType) {
       case 'ServerOfferResponse':
         console.log(`response type: ServerOfferResponse`);
-        var message = captureEvents['Message'];
-        console.log(`ServerOfferResponse message: ${message}`);
+        break;
+      case 'NewICEAvailableResponse':
+        console.log(`response type: NewICEAvailableResponse`);
         break;
       case 'Answer':
         console.log(`response type: answer`);

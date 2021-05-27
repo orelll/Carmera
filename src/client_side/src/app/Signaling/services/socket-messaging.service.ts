@@ -27,24 +27,32 @@ export class SocketMessagingService {
   private peerOffer: RTCSessionDescriptionInit;
 
   private remoteStream = new MediaStream();
-  private remoteVideo: ElementRef;
+  private remoteVideo: any;
 
   constructor() {
     this.offerResponseSubject = new Subject<RTCSessionDescription>();
     this.offerResponseObservable = this.offerResponseSubject.asObservable();
     this.peerConnection = new RTCPeerConnection(this.configuration);
-    
+    this.peerConnection.addEventListener('connectionstatechange', (event) => {
+      if (this.peerConnection.connectionState === 'connected') {
+        // Peers connected!
+        console.log(`connected!!`);
+      }
+    });
   }
 
-  setVideoElement(video: ElementRef):void{
-    this.remoteVideo.nativeElement = video;
-    this.remoteVideo.nativeElement.srcObject = this.remoteStream;
+  setVideoElement(video: ElementRef): void {
+    this.remoteVideo = video.nativeElement;
+    this.remoteVideo.srcObject = this.remoteStream;
   }
 
   async createOffer(): Promise<RTCSessionDescriptionInit> {
     this.peerConnection.addEventListener('track', async (event) => {
+      console.log(`new stream available`);
       this.remoteStream.addTrack(event.track);
+      this.remoteVideo.srcObject = this.remoteStream;
     });
+
     return await this.peerConnection.createOffer().then((offer) => {
       this.setLocalOffer(offer);
       return offer;
@@ -55,12 +63,12 @@ export class SocketMessagingService {
     peerOffer: RTCSessionDescriptionInit
   ): Promise<RTCSessionDescriptionInit> {
     this.peerOffer = peerOffer;
-
-    // this.peerConnection.setRemoteDescription(
-    //   new RTCSessionDescription(peerOffer)
-    // );
+    console.log(`setting remote description`);
     this.peerConnection.setRemoteDescription(peerOffer);
-    return this.peerConnection.localDescription;
+
+    var answer = await this.peerConnection.createAnswer();
+    this.peerConnection.setLocalDescription(answer);
+    return answer;
   }
 
   private setLocalOffer(offer: RTCSessionDescriptionInit): void {
@@ -108,7 +116,7 @@ export class SocketMessagingService {
   }
 
   private handleOfferSent(msg: any): void {
-    console.log('message received: ' + JSON.stringify(msg));
+    if (!(msg instanceof String)) msg = JSON.stringify(msg);
     var JO = JSON.parse(msg);
     var responseType = JO['ResponseType'];
 
@@ -117,7 +125,9 @@ export class SocketMessagingService {
         var serverExists = JO['ServerAvailable'];
         if (serverExists) {
           var jsonedOffer = serverExists == true ? JO['ServerOffer'] : '';
-          const offer: RTCSessionDescription =  new RTCSessionDescription(JSON.parse(jsonedOffer));
+          const offer: RTCSessionDescription = new RTCSessionDescription(
+            JSON.parse(jsonedOffer)
+          );
           this.offerResponseSubject.next(offer);
         }
         break;
@@ -125,9 +135,19 @@ export class SocketMessagingService {
         var serverExists = JO['ServerAvailable'];
         if (serverExists) {
           var jsonedOffer = serverExists == true ? JO['ServerOffer'] : '';
-          const offer: RTCSessionDescription = new RTCSessionDescription( JSON.parse(jsonedOffer));
+          const offer: RTCSessionDescription = new RTCSessionDescription(
+            JSON.parse(jsonedOffer)
+          );
           this.offerResponseSubject.next(offer);
         }
+        break;
+
+      case 'NewICEAvailable':
+        var iceDataJO = JO['ICEData'];
+        var parsed = JSON.parse(iceDataJO);
+        var iceData = new RTCIceCandidate(parsed);
+        console.log(`adding ICE Candidate: ${parsed}`);
+        this.peerConnection.addIceCandidate(iceData);
         break;
     }
   }

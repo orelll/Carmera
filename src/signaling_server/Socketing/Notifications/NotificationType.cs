@@ -9,6 +9,7 @@ namespace signaling_server.Socketing.Notifications
         ClientOfferResponse,
         ServerOfferResponse,
         TxtResponse,
-        GetServerResponse
+        GetServerResponse,
+        NewICEAvailable
     }
 }

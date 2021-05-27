@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace signaling_server.Socketing
+namespace signaling_server.Socketing.Repositories
 {
     public class SocketRepository : ISocketRepository
     {

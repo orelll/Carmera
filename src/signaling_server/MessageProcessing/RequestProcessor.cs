@@ -46,7 +46,14 @@ namespace signaling_server.MessageProcessing
                         var answerRequest = new AnswerRequest(address, socket, payload);
                         var answerRequestHandler = _handlersFactory.Create(answerRequest, answerRequest.GetResponseType());
 
-                        return answerRequestHandler.Handle(answerRequest);
+                        return answerRequestHandler.Handle(answerRequest);                    
+                    
+                    case "new-ice":
+                        var newICERequest = new NewICEAvailableRequest(address, socket, payload);
+                        var newICERequestHandler = _handlersFactory.Create(newICERequest, newICERequest.GetResponseType());
+
+                        return newICERequestHandler.Handle(newICERequest);
+
                     case "txt":
                     default:
                         var txtRequest = new TxtRequest(address, socket, payload);

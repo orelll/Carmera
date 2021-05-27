@@ -1,3 +1,15 @@
 <p>signaling works!</p>
 <button mat-button color="primary" (click)="doRegistration()">register this app</button>
-<video #remoteVideo></video>
+<!-- <video #remoteVideo></video> -->
+
+<div id="videoblock">
+  <p id="dimensions"></p>
+
+  <video id="gum-res-local" playsinline autoplay #remoteVideo></video>
+  <div id="width">
+    <label>Width <span></span>px:</label>
+    <input type="range" min="0" max="7680" value="0">
+  </div>
+  <input id="sizelock" type="checkbox">Lock video size<br>
+  <input id="aspectlock" type="checkbox">Lock aspect ratio<br>
+</div>
