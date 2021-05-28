@@ -1,0 +1,20 @@
+<p>socket-handling works!</p>
+<button mat-button (click)='registerApp()'>Register</button>
+
+<section class="example-section">
+  <mat-checkbox class="example-margin">Registered on server:</mat-checkbox>
+  <mat-checkbox class="example-margin">Available clients:</mat-checkbox>
+</section>
+<section class="example-section">
+  <mat-checkbox class="example-margin">Camera ready:</mat-checkbox>
+  <mat-checkbox class="example-margin">Sources count:</mat-checkbox>
+</section>
+<section class="example-section">
+  <mat-checkbox class="example-margin" [(ngModel)]='socketMessagingService.socketConnected'>Socket State:</mat-checkbox>
+  <mat-checkbox class="example-margin" [(ngModel)]='socketMessagingService.offerSent'>Offer Sent:</mat-checkbox>
+  <mat-checkbox class="example-margin" [(ngModel)]='socketMessagingService.offerAccepted'>Offer Accepted:</mat-checkbox>
+</section>
+<section class="example-section">
+  <p>RTC Peer State: {{webRTCService.peerSignalingState}}</p>
+  <p>RTC Connection State: {{webRTCService.peerConnectionState}}</p>
+</section>
