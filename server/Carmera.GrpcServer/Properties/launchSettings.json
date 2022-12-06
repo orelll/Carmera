@@ -1,6 +1,6 @@
 ﻿{
   "profiles": {
-    "Grpc": {
+    "Carmera.GrpcServer": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": false,

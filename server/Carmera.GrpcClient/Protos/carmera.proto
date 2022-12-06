@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+
+option csharp_namespace = "Carmera.GrpcClient.Services";
+
+package greet;
+
+// The greeting service definition.
+service CarmeraLoader {
+  // Sends a greeting
+  rpc HealthCheck (EmptyRequest) returns (BooleanReply);
+  rpc CurrentLocations (EmptyRequest) returns (CurrentLocationsReply);
+  rpc ListCameras (EmptyRequest) returns (ListCamerasReply);
+  rpc CheckConfiguration (EmptyRequest) returns (BooleanReply);
+  rpc GetPhoto (GetPhotoRequest) returns (GetPhotoReply);
+}
+
+// The request message containing the user's name.
+message EmptyRequest {
+}
+
+// The response message containing the greetings.
+message BooleanReply {
+  bool value = 1;
+  string message = 2;
+}
+
+message CurrentLocationsReply {
+  repeated string locations = 1;
+}
+
+message ListCamerasReply {
+  repeated string cameras = 1;
+}
+
+message GetPhotoRequest{
+  string cameraName = 1;
+}
+message GetPhotoReply{
+  string data = 1;
+  bool success = 2;
+}

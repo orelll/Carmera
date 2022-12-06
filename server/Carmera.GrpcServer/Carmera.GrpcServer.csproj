@@ -7,13 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Protobuf Include="Protos\greet.proto" GrpcServices="Server" />
+        <Protobuf Include="Protos\carmera.proto" GrpcServices="Server" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="DirectShowLib.Standard" Version="2.1.0" />
         <PackageReference Include="FFmpeg.AutoGen" Version="4.4.1.1" />
         <PackageReference Include="Grpc.AspNetCore" Version="2.40.0" />
+        <PackageReference Include="Grpc.AspNetCore.Web" Version="2.50.0" />
+        <PackageReference Include="Grpc.Net.Client.Web" Version="2.50.0" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
     </ItemGroup>
 

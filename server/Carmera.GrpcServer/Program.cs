@@ -2,7 +2,9 @@ using Carmera.CameraLoader.Interfaces;
 using Carmera.CameraLoader.Options;
 using Carmera.CameraLoader.Services;
 using Carmera.Grpc.Options;
-using Carmera.Grpc.Services;
+using Carmera.GrpcServer.Services;
+using Grpc.Net.Client.Web;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,12 +18,23 @@ builder.Logging.AddConsole();
 builder.Services.AddGrpc();
 
 builder.Services.AddScoped<ICameraConsumer, CameraConsumer>();
+
 builder.Services.Configure<FfmpegOptions>(
     builder.Configuration.GetSection(FfmpegOptions.FFmpeg));
 builder.Services.Configure<UrlsOptions>(
     builder.Configuration.GetSection(UrlsOptions.Config));
+builder.WebHost.ConfigureKestrel(options =>
+{
+    // Setup a HTTP/2 endpoint without TLS.
+    options.ListenLocalhost(5017, o => o.Protocols =  HttpProtocols.Http2);
+});
+builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
+{
+    builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+}));
 
 var app = builder.Build();
+app.UseCors("corsapp");
 
 Console.WriteLine("Loading urls...");
 var urls = app.Services.GetService<IOptions<UrlsOptions>>();
@@ -35,9 +48,9 @@ if (urls?.Value?.Urls != null && urls.Value.Urls.Any())
 }
 
 // Configure the HTTP request pipeline.
-app.MapGrpcService<CameraLoaderService>();
-app.MapGet("/",
-    () =>
-        "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+// app.MapGrpcService<CameraLoaderService>();
 
+app.UseRouting();
+app.UseGrpcWeb(new GrpcWebOptions { DefaultEnabled = true });
+app.MapGrpcService<CameraLoaderService>().EnableGrpcWeb();
 app.Run();

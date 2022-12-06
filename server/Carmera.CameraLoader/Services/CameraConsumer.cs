@@ -74,13 +74,12 @@ public class CameraConsumer : ICameraConsumer
                 camera.StartCapture();
                 Task.Delay(1000);
                 var frame = camera.GetFrame();
+                Task.Delay(1000);
                 camera.StopCapture();
-
                 var imageBase64 = ProcessFrame(frame);
                 return (imageBase64.image, imageBase64.success, "empty");
             }
         }
-        return (string.Empty, true, "Fake success!");
     }
 
     private (bool success, string error) Configure()

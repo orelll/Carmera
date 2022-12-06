@@ -2,7 +2,7 @@ using Carmera.CameraLoader.Interfaces;
 using Grpc;
 using Grpc.Core;
 
-namespace Carmera.Grpc.Services;
+namespace Carmera.GrpcServer.Services;
 
 public class CameraLoaderService : CarmeraLoader.CarmeraLoaderBase
 {

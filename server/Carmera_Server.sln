@@ -1,8 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carmera.Grpc", "Carmera.Grpc\Carmera.Grpc.csproj", "{0F49B240-2831-44A1-9912-1E247C05D33B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carmera.GrpcServer", "Carmera.GrpcServer\Carmera.GrpcServer.csproj", "{0F49B240-2831-44A1-9912-1E247C05D33B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carmera.CameraLoader", "Carmera.CameraLoader\Carmera.CameraLoader.csproj", "{40CDCD3B-4F4C-4616-9546-DDBDFDC4E6AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carmera.Gateway", "Carmera.Gateway\Carmera.Gateway.csproj", "{D2167EB1-3F99-48AB-AC2C-F7E3FFAAF1A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carmera.GrpcClient", "Carmera.GrpcClient\Carmera.GrpcClient.csproj", "{5DFF6E93-5322-42E8-83BE-9CD2EC4E49F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +22,13 @@ Global
 		{40CDCD3B-4F4C-4616-9546-DDBDFDC4E6AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40CDCD3B-4F4C-4616-9546-DDBDFDC4E6AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40CDCD3B-4F4C-4616-9546-DDBDFDC4E6AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2167EB1-3F99-48AB-AC2C-F7E3FFAAF1A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2167EB1-3F99-48AB-AC2C-F7E3FFAAF1A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2167EB1-3F99-48AB-AC2C-F7E3FFAAF1A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2167EB1-3F99-48AB-AC2C-F7E3FFAAF1A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DFF6E93-5322-42E8-83BE-9CD2EC4E49F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DFF6E93-5322-42E8-83BE-9CD2EC4E49F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DFF6E93-5322-42E8-83BE-9CD2EC4E49F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DFF6E93-5322-42E8-83BE-9CD2EC4E49F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
