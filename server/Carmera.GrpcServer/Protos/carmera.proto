@@ -13,6 +13,7 @@ service CarmeraLoader {
   rpc ListCameras (EmptyRequest) returns (ListCamerasReply);
   rpc CheckConfiguration (EmptyRequest) returns (BooleanReply);
   rpc GetPhoto (GetPhotoRequest) returns (GetPhotoReply);
+  rpc TestStream(EmptyRequest) returns (stream BooleanReply);
 }
 
 // The request message containing the user's name.

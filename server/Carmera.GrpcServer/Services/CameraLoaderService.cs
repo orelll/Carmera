@@ -62,4 +62,17 @@ public class CameraLoaderService : CarmeraLoader.CarmeraLoaderBase
         
         return Task.FromResult(reply);
     }
+
+    public override async Task TestStream(EmptyRequest request, IServerStreamWriter<BooleanReply> responseStream, ServerCallContext context)
+    {
+        for (int i = 0; i < 20; i++)
+        {
+            var newReply = new BooleanReply
+            {
+                Message = DateTime.Now.ToString(),
+            };
+            await responseStream.WriteAsync(newReply);
+            await Task.Delay(1500);
+        }
+    }
 }
